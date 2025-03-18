@@ -8,10 +8,11 @@ For LVGL details, please refer to https://lvgl.io/. The original LVGL source cod
 
 This repository is already modified to support EVE chips, and tested with most of the examples and "widget demo", "benchmark demo", "music demo" on Raspberry Pico RP2040 with BT816 chip.
 
-Due to code support needed from EVE's common files located under the "EveApps/common" folder. This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps
-
 Users are expected to be familiar with LVGL.
   
+## Dependency
+This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps. 
+The folder "common" of EveApps repo is required. 
 
 ## Build instructions
 
