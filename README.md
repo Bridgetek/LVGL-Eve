@@ -1,17 +1,17 @@
 
 
 # LVGL-Eve
+This repository is an extension of EveApps, designed to provide LVGL support for reference purposes.  
 
-This repository is an extention for EveApps to support LVGL for reference purposes.
+For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
+The current LVGL version used is [V9.0.0](https://github.com/lvgl/lvgl/releases/tag/v9.0.0).  
 
-For LVGL details, please refer to https://lvgl.io/. The original LVGL source code can be downloaded from https://github.com/lvgl/lvgl. Current LVGL version is V9.0.0. (https://github.com/lvgl/lvgl/releases/tag/v9.0.0)
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT816 chip.  
 
-This repository is already modified to support EVE chips, and tested with most of the examples and "widget demo", "benchmark demo", "music demo" on Raspberry Pico RP2040 with BT816 chip.
-
-Users are expected to be familiar with LVGL.
+Users should have prior experience with LVGL.
   
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps. 
+This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
 The folder "common" of EveApps repo is required. 
 
 ## Build instructions
