@@ -7,9 +7,12 @@
  *      INCLUDES
  *********************/
 
+#include "../../misc/lv_area_private.h"
+#include "../../libs/freetype/lv_freetype_private.h"
+#include "../lv_draw_label_private.h"
 #include "lv_draw_vg_lite.h"
 
-#include "../../libs/freetype/lv_freetype.h"
+#include "../../lvgl.h"
 
 #if LV_USE_DRAW_VG_LITE
 
@@ -63,8 +66,6 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
 void lv_draw_vg_lite_label(lv_draw_unit_t * draw_unit, const lv_draw_label_dsc_t * dsc,
                            const lv_area_t * coords)
 {
-    if(dsc->opa <= LV_OPA_MIN) return;
-
     LV_PROFILER_BEGIN;
 
 #if LV_USE_FREETYPE
@@ -89,7 +90,10 @@ static void draw_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_t * gly
     lv_draw_vg_lite_unit_t * u = (lv_draw_vg_lite_unit_t *)draw_unit;
     if(glyph_draw_dsc) {
         switch(glyph_draw_dsc->format) {
-            case LV_FONT_GLYPH_FORMAT_A1 ... LV_FONT_GLYPH_FORMAT_A8: {
+            case LV_FONT_GLYPH_FORMAT_A1:
+            case LV_FONT_GLYPH_FORMAT_A2:
+            case LV_FONT_GLYPH_FORMAT_A4:
+            case LV_FONT_GLYPH_FORMAT_A8: {
                     draw_letter_bitmap(u, glyph_draw_dsc);
                 }
                 break;
@@ -104,11 +108,11 @@ static void draw_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_t * gly
 #endif /* LV_USE_FREETYPE */
 
             case LV_FONT_GLYPH_FORMAT_IMAGE: {
-                    lv_draw_image_dsc_t img_dsc;
-                    lv_draw_image_dsc_init(&img_dsc);
-                    img_dsc.opa = glyph_draw_dsc->opa;
-                    img_dsc.src = glyph_draw_dsc->glyph_data;
-                    lv_draw_vg_lite_img(draw_unit, &img_dsc, glyph_draw_dsc->letter_coords, false);
+                    lv_draw_image_dsc_t image_dsc;
+                    lv_draw_image_dsc_init(&image_dsc);
+                    image_dsc.opa = glyph_draw_dsc->opa;
+                    image_dsc.src = glyph_draw_dsc->glyph_data;
+                    lv_draw_vg_lite_img(draw_unit, &image_dsc, glyph_draw_dsc->letter_coords, false);
                 }
                 break;
 
@@ -138,7 +142,7 @@ static void draw_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_t * gly
 static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_dsc_t * dsc)
 {
     lv_area_t clip_area;
-    if(!_lv_area_intersect(&clip_area, u->base_unit.clip_area, dsc->letter_coords)) {
+    if(!lv_area_intersect(&clip_area, u->base_unit.clip_area, dsc->letter_coords)) {
         return;
     }
 
@@ -146,9 +150,7 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
 
     lv_area_t image_area = *dsc->letter_coords;
 
-    vg_lite_matrix_t matrix;
-    vg_lite_identity(&matrix);
-    lv_vg_lite_matrix_multiply(&matrix, &u->global_matrix);
+    vg_lite_matrix_t matrix = u->global_matrix;
     vg_lite_translate(image_area.x1, image_area.y1, &matrix);
 
     vg_lite_buffer_t src_buf;
@@ -162,7 +164,7 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
     LV_VG_LITE_ASSERT_DEST_BUFFER(&u->target_buffer);
 
     /* If clipping is not required, blit directly */
-    if(_lv_area_is_in(&image_area, u->base_unit.clip_area, false)) {
+    if(lv_area_is_in(&image_area, u->base_unit.clip_area, false)) {
         /* The image area is the coordinates relative to the image itself */
         lv_area_t src_area = image_area;
         lv_area_move(&src_area, -image_area.x1, -image_area.y1);
@@ -187,16 +189,15 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
             path,
             clip_area.x1, clip_area.y1,
             lv_area_get_width(&clip_area), lv_area_get_height(&clip_area),
-            0, 0);
+            0);
         lv_vg_lite_path_set_bonding_box_area(path, &clip_area);
         lv_vg_lite_path_end(path);
 
         vg_lite_path_t * vg_lite_path = lv_vg_lite_path_get_path(path);
         LV_VG_LITE_ASSERT_PATH(vg_lite_path);
 
-        vg_lite_matrix_t path_matrix;
-        vg_lite_identity(&path_matrix);
-        lv_vg_lite_matrix_multiply(&path_matrix, &u->global_matrix);
+        vg_lite_matrix_t path_matrix = u->global_matrix;
+        LV_VG_LITE_ASSERT_MATRIX(&path_matrix);
 
         LV_PROFILER_BEGIN_TAG("vg_lite_draw_pattern");
         LV_VG_LITE_CHECK_ERROR(vg_lite_draw_pattern(
@@ -208,7 +209,7 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
                                    &matrix,
                                    VG_LITE_BLEND_SRC_OVER,
                                    VG_LITE_PATTERN_COLOR,
-                                   color,
+                                   0,
                                    color,
                                    VG_LITE_FILTER_LINEAR));
         LV_PROFILER_END_TAG("vg_lite_draw_pattern");
@@ -220,7 +221,7 @@ static void draw_letter_bitmap(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_d
      * You need to wait for the GPU to finish using the buffer before releasing it.
      * Later, use the font cache for management to improve efficiency.
      */
-    lv_vg_lite_finish(&u->base_unit);
+    lv_vg_lite_finish(u);
     LV_PROFILER_END;
 }
 
@@ -230,7 +231,7 @@ static void draw_letter_outline(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_
 {
     /* get clip area */
     lv_area_t path_clip_area;
-    if(!_lv_area_intersect(&path_clip_area, u->base_unit.clip_area, dsc->letter_coords)) {
+    if(!lv_area_intersect(&path_clip_area, u->base_unit.clip_area, dsc->letter_coords)) {
         return;
     }
 
@@ -242,20 +243,22 @@ static void draw_letter_outline(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_
 
     lv_vg_lite_path_t * outline = (lv_vg_lite_path_t *)dsc->glyph_data;
     lv_point_t pos = {dsc->letter_coords->x1, dsc->letter_coords->y1};
+    /* scale size */
+    float scale = FT_F26DOT6_TO_PATH_SCALE(lv_freetype_outline_get_scale(dsc->g->resolved_font));
 
     /* calc convert matrix */
-    float scale = FT_F26DOT6_TO_PATH_SCALE(lv_freetype_outline_get_scale(dsc->g->resolved_font));
     vg_lite_matrix_t matrix;
     vg_lite_identity(&matrix);
 
+    /* matrix for drawing, different from matrix for calculating the bonding box */
+    vg_lite_matrix_t draw_matrix = u->global_matrix;
+
     /* convert to vg-lite coordinate */
+    vg_lite_translate(pos.x - dsc->g->ofs_x, pos.y + dsc->g->box_h + dsc->g->ofs_y, &draw_matrix);
     vg_lite_translate(pos.x - dsc->g->ofs_x, pos.y + dsc->g->box_h + dsc->g->ofs_y, &matrix);
 
-    /* scale size */
+    vg_lite_scale(scale, scale, &draw_matrix);
     vg_lite_scale(scale, scale, &matrix);
-
-    /* Cartesian coordinates to LCD coordinates */
-    lv_vg_lite_matrix_flip_y(&matrix);
 
     /* calc inverse matrix */
     vg_lite_matrix_t result;
@@ -274,20 +277,20 @@ static void draw_letter_outline(lv_draw_vg_lite_unit_t * u, const lv_draw_glyph_
     /* Since the font uses Cartesian coordinates, the y coordinates need to be reversed */
     lv_vg_lite_path_set_bonding_box(outline, p1_res.x, p2_res.y, p2_res.x, p1_res.y);
 
-    /* Move to the position relative to the first address of the buffer */
-    lv_layer_t * layer = u->base_unit.target_layer;
-    vg_lite_translate(-layer->buf_area.x1 / scale, layer->buf_area.y1 / scale, &matrix);
-
     vg_lite_path_t * vg_lite_path = lv_vg_lite_path_get_path(outline);
 
     LV_VG_LITE_ASSERT_DEST_BUFFER(&u->target_buffer);
     LV_VG_LITE_ASSERT_PATH(vg_lite_path);
+    LV_VG_LITE_ASSERT_MATRIX(&draw_matrix);
 
     LV_PROFILER_BEGIN_TAG("vg_lite_draw");
     LV_VG_LITE_CHECK_ERROR(vg_lite_draw(
                                &u->target_buffer, vg_lite_path, VG_LITE_FILL_NON_ZERO,
-                               &matrix, VG_LITE_BLEND_SRC_OVER, lv_vg_lite_color(dsc->color, dsc->opa, true)));
+                               &draw_matrix, VG_LITE_BLEND_SRC_OVER, lv_vg_lite_color(dsc->color, dsc->opa, true)));
     LV_PROFILER_END_TAG("vg_lite_draw");
+
+    /* Flush in time to avoid accumulation of drawing commands */
+    lv_vg_lite_flush(u);
 
     LV_PROFILER_END;
 }
@@ -300,23 +303,28 @@ static void vg_lite_outline_push(const lv_freetype_outline_event_param_t * param
 
     lv_freetype_outline_type_t type = param->type;
     switch(type) {
+
+        /**
+         * Reverse the Y-axis coordinate direction to achieve
+         * the conversion from Cartesian coordinate system to LCD coordinate system
+         */
         case LV_FREETYPE_OUTLINE_END:
             lv_vg_lite_path_end(outline);
             break;
         case LV_FREETYPE_OUTLINE_MOVE_TO:
-            lv_vg_lite_path_move_to(outline, param->to.x, param->to.y);
+            lv_vg_lite_path_move_to(outline, param->to.x, -param->to.y);
             break;
         case LV_FREETYPE_OUTLINE_LINE_TO:
-            lv_vg_lite_path_line_to(outline, param->to.x, param->to.y);
+            lv_vg_lite_path_line_to(outline, param->to.x, -param->to.y);
             break;
         case LV_FREETYPE_OUTLINE_CUBIC_TO:
-            lv_vg_lite_path_cubic_to(outline, param->control1.x, param->control1.y,
-                                     param->control2.x, param->control2.y,
-                                     param->to.x, param->to.y);
+            lv_vg_lite_path_cubic_to(outline, param->control1.x, -param->control1.y,
+                                     param->control2.x, -param->control2.y,
+                                     param->to.x, -param->to.y);
             break;
         case LV_FREETYPE_OUTLINE_CONIC_TO:
-            lv_vg_lite_path_quad_to(outline, param->control1.x, param->control1.y,
-                                    param->to.x, param->to.y);
+            lv_vg_lite_path_quad_to(outline, param->control1.x, -param->control1.y,
+                                    param->to.x, -param->to.y);
             break;
         default:
             LV_LOG_ERROR("unknown point type: %d", type);

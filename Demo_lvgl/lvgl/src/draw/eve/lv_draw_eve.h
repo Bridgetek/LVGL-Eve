@@ -15,8 +15,16 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include "../lv_draw.h"
-#include "../../misc/lv_area.h"
+//#include "../lv_draw.h"
+#include "../lv_draw_image.h"
+#include "../lv_draw_triangle.h"
+#include "../lv_draw_rect.h"
+#include "../lv_draw_label_private.h"
+#include "../lv_draw_arc.h"
+#include "../lv_draw_line.h"
+#include "../lv_draw_mask.h"
+#include "../../misc/lv_area_private.h"
+#include "../../misc/lv_utils.h"
 #include "../../misc/lv_color.h"
 #include "../../display/lv_display.h"
 #include "../../osal/lv_os.h"
@@ -76,7 +84,7 @@ extern void lv_draw_eve_border(lv_draw_eve_unit_t *draw_unit, const lv_draw_bord
  * @param dsc           the draw descriptor
  * @param coords        the coordinates of the rectangle for which the box shadow should be drawn
  */
-//extern void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc, const lv_area_t *coords);
+extern void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc, const lv_area_t *coords);
 
 /**
  * Draw an image with EVE render. It handles image decoding, tiling, transformations, and recoloring.

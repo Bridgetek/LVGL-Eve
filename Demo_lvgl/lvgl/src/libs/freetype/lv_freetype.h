@@ -12,7 +12,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include "../../../lvgl.h"
+#include "../../lv_conf_internal.h"
+#include "../../misc/lv_types.h"
+#include "../../misc/lv_event.h"
+#include LV_STDBOOL_INCLUDE
 
 #if LV_USE_FREETYPE
 
@@ -31,21 +34,18 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
-enum {
+typedef enum {
     LV_FREETYPE_FONT_STYLE_NORMAL = 0,
     LV_FREETYPE_FONT_STYLE_ITALIC = 1 << 0,
     LV_FREETYPE_FONT_STYLE_BOLD = 1 << 1,
-};
+} lv_freetype_font_style_t;
 
-typedef uint16_t lv_freetype_font_style_t;
 typedef lv_freetype_font_style_t LV_FT_FONT_STYLE;
 
-enum {
+typedef enum {
     LV_FREETYPE_FONT_RENDER_MODE_BITMAP = 0,
     LV_FREETYPE_FONT_RENDER_MODE_OUTLINE = 1,
-};
-
-typedef uint16_t lv_freetype_font_render_mode_t;
+} lv_freetype_font_render_mode_t;
 
 typedef void * lv_freetype_outline_t;
 
@@ -57,32 +57,15 @@ typedef enum {
     LV_FREETYPE_OUTLINE_CONIC_TO,
 } lv_freetype_outline_type_t;
 
-typedef struct {
-    int32_t x;
-    int32_t y;
-} lv_freetype_outline_vector_t;
-
-typedef struct {
-    lv_freetype_outline_t outline;
-    lv_freetype_outline_type_t type;
-    lv_freetype_outline_vector_t to;
-    lv_freetype_outline_vector_t control1;
-    lv_freetype_outline_vector_t control2;
-} lv_freetype_outline_event_param_t;
-
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
 
 /**
  * Initialize the freetype library.
- * @param max_faces Maximum number of opened FT_Face objects managed by this cache instance. Use 0 for defaults.
- * @param max_sizes Maximum number of opened FT_Size objects managed by this cache instance. Use 0 for defaults.
- * @param max_kilobytes Maximum number of kilobytes to use for cached data nodes. Use 0 for defaults.
- *                  Note that this value does not account for managed FT_Face and FT_Size objects.
  * @return LV_RESULT_OK on success, otherwise LV_RESULT_INVALID.
  */
-lv_result_t lv_freetype_init(uint32_t max_faces, uint32_t max_sizes, uint32_t max_kilobytes);
+lv_result_t lv_freetype_init(uint32_t max_glyph_cnt);
 
 /**
  * Uninitialize the freetype library

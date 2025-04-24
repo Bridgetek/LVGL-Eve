@@ -11,11 +11,14 @@
 
 #if LV_USE_DRAW_VG_LITE
 
-#include "../lv_draw.h"
+#include "../lv_draw_private.h"
 #include "lv_draw_vg_lite_type.h"
 #include "lv_vg_lite_path.h"
 #include "lv_vg_lite_utils.h"
 #include "lv_vg_lite_decoder.h"
+#include "lv_vg_lite_grad.h"
+#include "lv_vg_lite_pending.h"
+#include "lv_vg_lite_stroke.h"
 
 /*********************
  *      DEFINES
@@ -68,10 +71,13 @@ void lv_draw_vg_lite_init(void)
     unit->base_unit.dispatch_cb = draw_dispatch;
     unit->base_unit.evaluate_cb = draw_evaluate;
     unit->base_unit.delete_cb = draw_delete;
-    lv_array_init(&unit->img_dsc_pending, 4, sizeof(lv_image_decoder_dsc_t));
 
+    lv_vg_lite_image_dsc_init(unit);
+#if LV_USE_VECTOR_GRAPHIC
+    lv_vg_lite_grad_init(unit, LV_VG_LITE_GRAD_CACHE_CNT);
+    lv_vg_lite_stroke_init(unit, LV_VG_LITE_STROKE_CACHE_CNT);
+#endif
     lv_vg_lite_path_init(unit);
-
     lv_vg_lite_decoder_init();
 }
 
@@ -108,7 +114,22 @@ static void draw_execute(lv_draw_vg_lite_unit_t * u)
     lv_draw_buf_set_flag(layer->draw_buf, LV_IMAGE_FLAGS_PREMULTIPLIED);
 
     vg_lite_identity(&u->global_matrix);
-    vg_lite_translate(-layer->buf_area.x1, -layer->buf_area.y1, &u->global_matrix);
+    if(layer->buf_area.x1 || layer->buf_area.y1) {
+        vg_lite_translate(-layer->buf_area.x1, -layer->buf_area.y1, &u->global_matrix);
+    }
+
+#if LV_DRAW_TRANSFORM_USE_MATRIX
+    vg_lite_matrix_t layer_matrix;
+    lv_vg_lite_matrix(&layer_matrix, &t->matrix);
+    lv_vg_lite_matrix_multiply(&u->global_matrix, &layer_matrix);
+
+    /* Crop out extra pixels drawn due to scaling accuracy issues */
+    if(vg_lite_query_feature(gcFEATURE_BIT_VG_SCISSOR)) {
+        lv_area_t scissor_area = layer->phy_clip_area;
+        lv_area_move(&scissor_area, -layer->buf_area.x1, -layer->buf_area.y1);
+        lv_vg_lite_set_scissor_area(&scissor_area);
+    }
+#endif
 
     switch(t->type) {
         case LV_DRAW_TASK_TYPE_LABEL:
@@ -150,7 +171,7 @@ static void draw_execute(lv_draw_vg_lite_unit_t * u)
             break;
     }
 
-    lv_vg_lite_flush(draw_unit);
+    lv_vg_lite_flush(u);
 }
 
 static int32_t draw_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
@@ -167,18 +188,18 @@ static int32_t draw_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
 
     /* Return 0 is no selection, some tasks can be supported by other units. */
     if(!t || t->preferred_draw_unit_id != VG_LITE_DRAW_UNIT_ID) {
-        lv_vg_lite_finish(draw_unit);
-        return -1;
+        lv_vg_lite_finish(u);
+        return LV_DRAW_UNIT_IDLE;
+    }
+
+    /* Return if target buffer format is not supported. */
+    if(!lv_vg_lite_is_dest_cf_supported(layer->color_format)) {
+        return LV_DRAW_UNIT_IDLE;
     }
 
     void * buf = lv_draw_layer_alloc_buf(layer);
     if(!buf) {
-        return -1;
-    }
-
-    /* Return if target buffer format is not supported. */
-    if(!lv_vg_lite_is_dest_cf_supported(layer->draw_buf->header.cf)) {
-        return -1;
+        return LV_DRAW_UNIT_IDLE;
     }
 
     t->state = LV_DRAW_TASK_STATE_IN_PROGRESS;
@@ -200,6 +221,12 @@ static int32_t draw_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
 static int32_t draw_evaluate(lv_draw_unit_t * draw_unit, lv_draw_task_t * task)
 {
     LV_UNUSED(draw_unit);
+
+    /* Return if target buffer format is not supported. */
+    const lv_draw_dsc_base_t * base_dsc = task->draw_dsc;
+    if(!lv_vg_lite_is_dest_cf_supported(base_dsc->layer->color_format)) {
+        return -1;
+    }
 
     switch(task->type) {
         case LV_DRAW_TASK_TYPE_LABEL:
@@ -240,7 +267,12 @@ static int32_t draw_evaluate(lv_draw_unit_t * draw_unit, lv_draw_task_t * task)
 static int32_t draw_delete(lv_draw_unit_t * draw_unit)
 {
     lv_draw_vg_lite_unit_t * unit = (lv_draw_vg_lite_unit_t *)draw_unit;
-    lv_array_deinit(&unit->img_dsc_pending);
+
+    lv_vg_lite_image_dsc_deinit(unit);
+#if LV_USE_VECTOR_GRAPHIC
+    lv_vg_lite_grad_deinit(unit);
+    lv_vg_lite_stroke_deinit(unit);
+#endif
     lv_vg_lite_path_deinit(unit);
     lv_vg_lite_decoder_deinit();
     return 1;

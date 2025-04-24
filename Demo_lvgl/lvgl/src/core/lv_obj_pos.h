@@ -23,6 +23,20 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
+typedef enum {
+    /** No flags */
+    LV_OBJ_POINT_TRANSFORM_FLAG_NONE = 0x00,
+
+    /** Consider the transformation properties of the parents too */
+    LV_OBJ_POINT_TRANSFORM_FLAG_RECURSIVE = 0x01,
+
+    /** Execute the inverse of the transformation (-angle and 1/zoom) */
+    LV_OBJ_POINT_TRANSFORM_FLAG_INVERSE = 0x02,
+
+    /** Both inverse and recursive*/
+    LV_OBJ_POINT_TRANSFORM_FLAG_INVERSE_RECURSIVE = 0x03,
+} lv_obj_point_transform_flag_t;
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
@@ -165,9 +179,9 @@ void lv_obj_set_align(lv_obj_t * obj, lv_align_t align);
 void lv_obj_align(lv_obj_t * obj, lv_align_t align, int32_t x_ofs, int32_t y_ofs);
 
 /**
- * Align an object to an other object.
+ * Align an object to another object.
  * @param obj       pointer to an object to align
- * @param base      pointer to an other object (if NULL `obj`s parent is used). 'obj' will be aligned to it.
+ * @param base      pointer to another object (if NULL `obj`s parent is used). 'obj' will be aligned to it.
  * @param align     type of alignment (see 'lv_align_t' enum)
  * @param x_ofs     x coordinate offset after alignment
  * @param y_ofs     y coordinate offset after alignment
@@ -181,10 +195,7 @@ void lv_obj_align_to(lv_obj_t * obj, const lv_obj_t * base, lv_align_t align, in
  * @param obj       pointer to an object to align
  * @note            if the parent size changes `obj` needs to be aligned manually again
  */
-static inline void lv_obj_center(lv_obj_t * obj)
-{
-    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
-}
+void lv_obj_center(lv_obj_t * obj);
 
 /**
  * Copy the coordinates of an object to an area
@@ -242,14 +253,14 @@ int32_t lv_obj_get_y(const lv_obj_t * obj);
 int32_t lv_obj_get_y2(const lv_obj_t * obj);
 
 /**
- * Get the actually set x coordinate of object, i.e. the offset form the set alignment
+ * Get the actually set x coordinate of object, i.e. the offset from the set alignment
  * @param obj       pointer to an object
  * @return          the set x coordinate
  */
 int32_t lv_obj_get_x_aligned(const lv_obj_t * obj);
 
 /**
- * Get the actually set y coordinate of object, i.e. the offset form the set alignment
+ * Get the actually set y coordinate of object, i.e. the offset from the set alignment
  * @param obj       pointer to an object
  * @return          the set y coordinate
  */
@@ -335,19 +346,27 @@ void lv_obj_move_children_by(lv_obj_t * obj, int32_t x_diff, int32_t y_diff, boo
  * Transform a point using the angle and zoom style properties of an object
  * @param obj           pointer to an object whose style properties should be used
  * @param p             a point to transform, the result will be written back here too
- * @param recursive     consider the transformation properties of the parents too
- * @param inv           do the inverse of the transformation (-angle and 1/zoom)
+ * @param flags         OR-ed valued of :cpp:enum:`lv_obj_point_transform_flag_t`
  */
-void lv_obj_transform_point(const lv_obj_t * obj, lv_point_t * p, bool recursive, bool inv);
+void lv_obj_transform_point(const lv_obj_t * obj, lv_point_t * p, lv_obj_point_transform_flag_t flags);
+
+/**
+ * Transform an array of points using the angle and zoom style properties of an object
+ * @param obj           pointer to an object whose style properties should be used
+ * @param points        the array of points to transform, the result will be written back here too
+ * @param count         number of points in the array
+ * @param flags         OR-ed valued of :cpp:enum:`lv_obj_point_transform_flag_t`
+ */
+void lv_obj_transform_point_array(const lv_obj_t * obj, lv_point_t points[], size_t count,
+                                  lv_obj_point_transform_flag_t flags);
 
 /**
  * Transform an area using the angle and zoom style properties of an object
  * @param obj           pointer to an object whose style properties should be used
  * @param area          an area to transform, the result will be written back here too
- * @param recursive     consider the transformation properties of the parents too
- * @param inv           do the inverse of the transformation (-angle and 1/zoom)
+ * @param flags         OR-ed valued of :cpp:enum:`lv_obj_point_transform_flag_t`
  */
-void lv_obj_get_transformed_area(const lv_obj_t * obj, lv_area_t * area, bool recursive, bool inv);
+void lv_obj_get_transformed_area(const lv_obj_t * obj, lv_area_t * area, lv_obj_point_transform_flag_t flags);
 
 /**
  * Mark an area of an object as invalid.

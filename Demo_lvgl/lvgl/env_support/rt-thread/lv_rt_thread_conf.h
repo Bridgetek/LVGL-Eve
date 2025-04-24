@@ -13,8 +13,6 @@
 
 #ifdef __RTTHREAD__
 
-#include <lvgl.h>
-
 #define LV_RTTHREAD_INCLUDE <rtthread.h>
 #include LV_RTTHREAD_INCLUDE
 
@@ -31,6 +29,14 @@
 #if LV_USE_FLOAT == 0
     #define LV_USE_STDLIB_SPRINTF   LV_STDLIB_RTTHREAD
 #endif
+
+/*=========================
+   CPU usage
+ *=========================*/
+
+#ifdef PKG_USING_CPU_USAGE
+    #define LV_SYSMON_GET_IDLE   lv_timer_os_get_idle
+#endif /* PKG_USING_CPU_USAGE */
 
 /*=================
  * OPERATING SYSTEM

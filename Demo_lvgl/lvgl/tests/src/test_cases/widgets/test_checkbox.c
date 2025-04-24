@@ -1,5 +1,6 @@
 #if LV_BUILD_TEST
 #include "../lvgl.h"
+#include "../../lvgl_private.h"
 
 #include "unity/unity.h"
 
@@ -75,7 +76,7 @@ void test_checkbox_should_return_dynamically_allocated_text(void)
 
 void test_checkbox_should_allocate_memory_for_static_text(void)
 {
-    uint32_t initial_available_memory = 0;
+    size_t initial_available_memory = 0;
     const char * static_text = "Keep me while you exist";
 
     lv_mem_monitor_t m1;
@@ -90,6 +91,7 @@ void test_checkbox_should_allocate_memory_for_static_text(void)
 
     lv_mem_monitor(&m1);
 
+    LV_UNUSED(initial_available_memory);
     LV_HEAP_CHECK(TEST_ASSERT_LESS_THAN(initial_available_memory, m1.free_size));
 }
 

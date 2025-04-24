@@ -34,7 +34,7 @@ static void convert_ARGB8888_to_ARGB4(const uint8_t * src, uint8_t * dst, uint16
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *      MACROS
@@ -67,11 +67,13 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
 
     int32_t img_w = img_dsc->header.w;
     int32_t img_h = img_dsc->header.h;
+    int32_t img_stride = img_dsc->header.stride;
+    int32_t img_size = img_dsc->data_size;
     int32_t clip_w = lv_area_get_width(draw_unit->base_unit.clip_area);
     int32_t clip_h = lv_area_get_height(draw_unit->base_unit.clip_area);
     uint16_t color_f = img_dsc->header.cf;
-    uint16_t img_stride = 0;
-    int32_t img_size = img_w * img_h * LV_COLOR_DEPTH / 8;
+    //uint16_t img_stride = 0;
+    //int32_t img_size = img_w * img_h * LV_COLOR_DEPTH / 8;
 
     LV_LOG_INFO("clip_area: x1: %d. y1: %d, x2: %d, y2: %d\n", draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1,
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
@@ -95,7 +97,7 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
         {
         case LV_COLOR_FORMAT_L8:
             buffer_converted = (uint8_t *)img_src;
-            img_size = img_size / 2;
+            //img_size = img_size / 2;
             break;
         case LV_COLOR_FORMAT_RGB565:
             buffer_converted = (uint8_t *)img_src;
@@ -106,8 +108,13 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
             buffer_converted = temp_buff;
             break;
         case LV_COLOR_FORMAT_ARGB8888:
+#if 1
+            buffer_converted = (uint8_t*)img_src;
+            //img_size = img_size * 2;
+#else
             convert_ARGB8888_to_ARGB4(img_src, temp_buff, img_w, img_h);
             buffer_converted = temp_buff;
+#endif
             break;
         default:
             break;
@@ -118,14 +125,12 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
         /* Save RAM_G Memory Block ID info */
         update_ramg_block(free_ramg_block, (uint8_t *)img_src, start_addr_ramg, img_size);
     }
-
     if (draw_dsc->rotation == 0 && draw_dsc->scale_x == LV_SCALE_NONE && draw_dsc->scale_y == LV_SCALE_NONE)
     {
         EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
         EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1,
             draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1);
     }
-
     if(draw_dsc->recolor_opa > LV_OPA_MIN) {
         EVE_CoDl_colorA(s_pHalContext, draw_dsc->recolor_opa);
         EVE_CoDl_colorRgb(s_pHalContext, draw_dsc->recolor.red, draw_dsc->recolor.green, draw_dsc->recolor.blue);
@@ -137,26 +142,31 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
     switch(color_f) {
         case LV_COLOR_FORMAT_L8 :
             eve_format = L8;
-            img_stride = img_w;
+            //img_stride = img_w;
             break;
         case LV_COLOR_FORMAT_RGB565 :
             eve_format = RGB565;
-            img_stride = img_w * 2;
+            //img_stride = img_w * 2;
             break;
         case LV_COLOR_FORMAT_RGB565A8 :
             eve_format = ARGB1555;
-            img_stride = img_w * 2;
+            //img_stride = img_w * 2;
             break;
         case LV_COLOR_FORMAT_ARGB8888 :
+#if 1
+            eve_format = ARGB8;
+#else
             eve_format = ARGB4;
-            img_stride = img_w * 2;
+#endif
+
+            //img_stride = img_w * 2;
             break;
         default :
             break;
     }
     EVE_CoDl_saveContext(s_pHalContext);
     EVE_CoDl_bitmapHandle(s_pHalContext, 0);
-#if defined(FT81X_ENABLE) || defined(BT88X_ENABLE)
+#if defined(FT81X_ENABLE) || defined(BT88X_ENABLE) || defined(BT820_ENABLE)
     EVE_CoCmd_setBitmap(s_pHalContext, img_addr, eve_format, img_w < clip_w ? img_w : clip_w, img_h < clip_h ? img_h : clip_h);
 #else
     EVE_CoDl_bitmapSource(s_pHalContext, img_addr);

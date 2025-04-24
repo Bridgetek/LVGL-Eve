@@ -18,6 +18,16 @@ extern "C" {
 
 #  ifdef __NuttX__
 #    include <nuttx/config.h>
+/*
+ * Make sure version number in Kconfig file is correctly set.
+ * Mismatch can happen when user manually copy lvgl/Kconfig file to their project, like what NuttX does.
+ */
+#    include "../lv_version.h"
+
+#    if CONFIG_LVGL_VERSION_MAJOR != LVGL_VERSION_MAJOR || CONFIG_LVGL_VERSION_MINOR != LVGL_VERSION_MINOR \
+        || CONFIG_LVGL_VERSION_PATCH != LVGL_VERSION_PATCH
+#        warning "Version mismatch between Kconfig and lvgl/lv_version.h"
+#    endif
 #  elif defined(__RTTHREAD__)
 #    define LV_CONF_INCLUDE_SIMPLE
 #    include <lv_rt_thread_conf.h>
@@ -194,6 +204,8 @@ extern "C" {
 #  define CONFIG_LV_FONT_DEFAULT &lv_font_montserrat_28_compressed
 #elif defined(CONFIG_LV_FONT_DEFAULT_DEJAVU_16_PERSIAN_HEBREW)
 #  define CONFIG_LV_FONT_DEFAULT &lv_font_dejavu_16_persian_hebrew
+#elif defined(CONFIG_LV_FONT_DEFAULT_SIMSUN_14_CJK)
+#  define CONFIG_LV_FONT_DEFAULT &lv_font_simsun_14_cjk
 #elif defined(CONFIG_LV_FONT_DEFAULT_SIMSUN_16_CJK)
 #  define CONFIG_LV_FONT_DEFAULT &lv_font_simsun_16_cjk
 #elif defined(CONFIG_LV_FONT_DEFAULT_UNSCII_8)
@@ -221,6 +233,18 @@ extern "C" {
 #  define CONFIG_LV_BIDI_BASE_DIR_DEF LV_BASE_DIR_RTL
 #elif defined(CONFIG_LV_BASE_DIR_AUTO)
 #  define CONFIG_LV_BIDI_BASE_DIR_DEF LV_BASE_DIR_AUTO
+#endif
+
+/*------------------
+ * SDL
+ *-----------------*/
+
+#ifdef CONFIG_LV_SDL_RENDER_MODE_PARTIAL
+#  define CONFIG_LV_SDL_RENDER_MODE LV_DISPLAY_RENDER_MODE_PARTIAL
+#elif defined(CONFIG_LV_SDL_RENDER_MODE_DIRECT)
+#  define CONFIG_LV_SDL_RENDER_MODE LV_DISPLAY_RENDER_MODE_DIRECT
+#elif defined(CONFIG_LV_SDL_RENDER_MODE_FULL)
+#  define CONFIG_LV_SDL_RENDER_MODE LV_DISPLAY_RENDER_MODE_FULL
 #endif
 
 /*------------------

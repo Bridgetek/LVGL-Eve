@@ -38,7 +38,7 @@ static int32_t chord_length(int16_t radius, int16_t angleDegrees);
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *   GLOBAL FUNCTIONS

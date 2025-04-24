@@ -3,7 +3,7 @@ ILI9341 LCD Controller driver
 =============================
 
 Overview
--------------
+--------
 
 The `ILI9341 <https://www.buydisplay.com/download/ic/ILI9341.pdf>`__ is a 262,144-color single-chip SOC driver for a-TFT liquid crystal display with resolution of 240RGBx320
 dots, comprising a 720-channel source driver, a 320-channel gate driver, 172,800 bytes GRAM for graphic
@@ -66,3 +66,8 @@ To create an ILI9341-based display use the function
 
 
 For additional details and a working example see the `generic MIPI driver documentation <https://github.com/lvgl/lvgl/doc/integration/drivers/display/gen_mipi.rst>`__.
+
+.. note::
+
+	You can find a step-by-step guide and the actual implementation of the callbacks on an STM32F746 using STM32CubeIDE and the ST HAL libraries here: :ref:`lcd_stm32_guide`
+	

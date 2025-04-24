@@ -10,12 +10,11 @@
 
 #if LV_USE_X11
 
+#include <string.h>
 #include <stdbool.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "../../stdlib/lv_string.h"
 #include "../../widgets/image/lv_image.h"
-#include "../../core/lv_obj.h"
 
 /*********************
  *      DEFINES
@@ -34,7 +33,7 @@ typedef struct _x11_inp_data {
     lv_indev_t * mousewheel;     /**< encoder input device object */
     lv_timer_t * timer;          /**< timer object for @ref x11_event_handler */
     /* user input related information */
-    char         kb_buffer[32];   /**< keyboard buffer for X keyboard inpputs */
+    char         kb_buffer[32];   /**< keyboard buffer for X keyboard inputs */
     lv_point_t   mouse_pos;       /**< current reported mouse position */
     bool         left_mouse_btn;  /**< current state of left mouse button */
     bool         right_mouse_btn; /**< current state of right mouse button */
@@ -120,6 +119,54 @@ static void x11_inp_event_handler(lv_timer_t * t)
                     if(len < (sizeof(xd->kb_buffer) - 2 /* space for 1 char + '\0' */)) {
                         KeySym key;
                         int n = XLookupString(&event.xkey, &xd->kb_buffer[len], sizeof(xd->kb_buffer) - (len + 1), &key, NULL);
+                        n += !!key;
+                        switch(key) {
+                            case XK_Home:
+                            case XK_KP_Home:
+                                xd->kb_buffer[len] = LV_KEY_HOME;
+                                break;
+                            case XK_Left:
+                            case XK_KP_Left:
+                                xd->kb_buffer[len] = LV_KEY_LEFT;
+                                break;
+                            case XK_Up:
+                            case XK_KP_Up:
+                                xd->kb_buffer[len] = LV_KEY_UP;
+                                break;
+                            case XK_Right:
+                            case XK_KP_Right:
+                                xd->kb_buffer[len] = LV_KEY_RIGHT;
+                                break;
+                            case XK_Down:
+                            case XK_KP_Down:
+                                xd->kb_buffer[len] = LV_KEY_DOWN;
+                                break;
+                            case XK_Prior:
+                            case XK_KP_Prior:
+                                xd->kb_buffer[len] = LV_KEY_PREV;
+                                break;
+                            case XK_Next:
+                            case XK_KP_Next:
+                                xd->kb_buffer[len] = LV_KEY_NEXT;
+                                break;
+                            case XK_End:
+                            case XK_KP_End:
+                                xd->kb_buffer[len] = LV_KEY_END;
+                                break;
+                            case XK_BackSpace:
+                                xd->kb_buffer[len] = LV_KEY_BACKSPACE;
+                                break;
+                            case XK_Escape:
+                                xd->kb_buffer[len] = LV_KEY_ESC;
+                                break;
+                            case XK_Delete:
+                            case XK_KP_Delete:
+                                xd->kb_buffer[len] = LV_KEY_DEL;
+                                break;
+                            case XK_KP_Enter:
+                                xd->kb_buffer[len] = LV_KEY_ENTER;
+                                break;
+                        }
                         xd->kb_buffer[len + n] = '\0';
                     }
                 }
@@ -133,7 +180,7 @@ static void x11_inp_event_handler(lv_timer_t * t)
 }
 
 /**
- * event callbed by lvgl display if display has been closed (@ref lv_display_delete has been called)
+ * event called by lvgl display if display has been closed (@ref lv_display_delete has been called)
  * @param[in] e  event data, containing lv_display_t object
  */
 static void x11_inp_delete_evt_cb(lv_event_t * e)
@@ -214,7 +261,7 @@ static void x11_mousewheel_read_cb(lv_indev_t * indev, lv_indev_data_t * data)
 static lv_indev_t * lv_x11_keyboard_create(lv_display_t * disp)
 {
     lv_indev_t * indev = lv_indev_create();
-    LV_ASSERT_OBJ(indev, MY_CLASS);
+    LV_ASSERT_NULL(indev);
     if(NULL != indev) {
         lv_indev_set_type(indev, LV_INDEV_TYPE_KEYPAD);
         lv_indev_set_read_cb(indev, x11_keyboard_read_cb);
@@ -226,7 +273,6 @@ static lv_indev_t * lv_x11_keyboard_create(lv_display_t * disp)
 static lv_indev_t * lv_x11_mouse_create(lv_display_t * disp, lv_image_dsc_t const * symb)
 {
     lv_indev_t * indev = lv_indev_create();
-    LV_ASSERT_OBJ(indev, MY_CLASS);
     if(NULL != indev) {
         lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
         lv_indev_set_read_cb(indev, x11_mouse_read_cb);
@@ -245,7 +291,6 @@ static lv_indev_t * lv_x11_mouse_create(lv_display_t * disp, lv_image_dsc_t cons
 static lv_indev_t * lv_x11_mousewheel_create(lv_display_t * disp)
 {
     lv_indev_t * indev = lv_indev_create();
-    LV_ASSERT_OBJ(indev, MY_CLASS);
     if(NULL != indev) {
         lv_indev_set_type(indev, LV_INDEV_TYPE_ENCODER);
         lv_indev_set_read_cb(indev, x11_mousewheel_read_cb);

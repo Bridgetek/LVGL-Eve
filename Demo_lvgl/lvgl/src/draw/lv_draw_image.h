@@ -1,5 +1,5 @@
 /**
- * @file lv_draw_img.h
+ * @file lv_draw_image.h
  *
  */
 
@@ -15,7 +15,7 @@ extern "C" {
  *********************/
 #include "lv_draw.h"
 #include "lv_image_decoder.h"
-#include "lv_image_buf.h"
+#include "lv_draw_buf.h"
 #include "../misc/lv_style.h"
 
 /*********************
@@ -26,17 +26,7 @@ extern "C" {
  *      MACROS
  **********************/
 
-/**********************
- *      TYPEDEFS
- **********************/
-
-typedef struct {
-    lv_color_t alpha_color;
-    const lv_color32_t * palette;
-    uint32_t palette_size   : 9;
-} lv_draw_image_sup_t;
-
-typedef struct _lv_draw_image_dsc_t {
+typedef struct lv_draw_image_dsc_t {
     lv_draw_dsc_base_t base;
 
     const void * src;
@@ -55,9 +45,20 @@ typedef struct _lv_draw_image_dsc_t {
     lv_opa_t opa;
     lv_blend_mode_t blend_mode : 4;
 
-    uint16_t antialias      : 1;
-    uint16_t tile           : 1;
+    uint16_t antialias          : 1;
+    uint16_t tile               : 1;
     lv_draw_image_sup_t * sup;
+
+    /** Used to indicate the entire original, non-clipped area where the image is to be drawn.
+     * This is important for:
+     *  1. Layer rendering, where it might happen that only a smaller area of the layer is rendered.
+     *  2. Tiled images, where the target draw area is larger than the image to be tiled.
+     */
+    lv_area_t image_area;
+
+    int32_t clip_radius;
+
+    const lv_image_dsc_t * bitmap_mask_src;
 } lv_draw_image_dsc_t;
 
 /**
@@ -95,14 +96,19 @@ lv_draw_image_dsc_t * lv_draw_task_get_image_dsc(lv_draw_task_t * task);
  * @param layer         pointer to a layer
  * @param dsc           pointer to an initialized draw descriptor
  * @param coords        the coordinates of the image
+ * @note                `coords` can be small than the real image area
+ *                      (if only a part of the image is rendered)
+ *                      or can be larger (in case of tiled images).   .
  */
 void lv_draw_image(lv_layer_t * layer, const lv_draw_image_dsc_t * dsc, const lv_area_t * coords);
 
 /**
- * Create a draw task to blend a layer to an other layer
+ * Create a draw task to blend a layer to another layer
  * @param layer         pointer to a layer
  * @param dsc           pointer to an initialized draw descriptor
- * @param coords        the coordinates of the layer
+ * @param coords        the coordinates of the layer.
+ * @note                `coords` can be small than the total widget area from which the layer is created
+ *                      (if only a part of the widget was rendered to a layer)
  */
 void lv_draw_layer(lv_layer_t * layer, const lv_draw_image_dsc_t * dsc, const lv_area_t * coords);
 
@@ -115,28 +121,6 @@ void lv_draw_layer(lv_layer_t * layer, const lv_draw_image_dsc_t * dsc, const lv
  * @return type of the image source LV_IMAGE_SRC_VARIABLE/FILE/SYMBOL/UNKNOWN
  */
 lv_image_src_t lv_image_src_get_type(const void * src);
-
-/**
- * Can be used by draw units to handle the decoding and
- * prepare everything for the actual image rendering
- * @param draw_unit     pointer to a draw unit
- * @param draw_dsc      the draw descriptor of the image
- * @param coords        the absolute coordinates of the image
- * @param draw_core_cb  a callback to perform the actual rendering
- */
-void _lv_draw_image_normal_helper(lv_draw_unit_t * draw_unit, const lv_draw_image_dsc_t * draw_dsc,
-                                  const lv_area_t * coords, lv_draw_image_core_cb draw_core_cb);
-
-/**
- * Can be used by draw units for TILED images to handle the decoding and
- * prepare everything for the actual image rendering
- * @param draw_unit     pointer to a draw unit
- * @param draw_dsc      the draw descriptor of the image
- * @param coords        the absolute coordinates of the image
- * @param draw_core_cb  a callback to perform the actual rendering
- */
-void _lv_draw_image_tiled_helper(lv_draw_unit_t * draw_unit, const lv_draw_image_dsc_t * draw_dsc,
-                                 const lv_area_t * coords, lv_draw_image_core_cb draw_core_cb);
 
 #ifdef __cplusplus
 } /*extern "C"*/

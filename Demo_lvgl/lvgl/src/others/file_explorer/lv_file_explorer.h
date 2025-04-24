@@ -13,7 +13,8 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include "../../../lvgl.h"
+#include "../../lv_conf_internal.h"
+#include "../../core/lv_obj.h"
 
 #if LV_USE_FILE_EXPLORER != 0
 
@@ -40,30 +41,6 @@ typedef enum {
     LV_EXPLORER_FS_DIR,
 } lv_file_explorer_dir_t;
 #endif
-
-/*Data of canvas*/
-typedef struct {
-    lv_obj_t obj;
-    lv_obj_t * cont;
-    lv_obj_t * head_area;
-    lv_obj_t * browser_area;
-    lv_obj_t * file_table;
-    lv_obj_t * path_label;
-#if LV_FILE_EXPLORER_QUICK_ACCESS
-    lv_obj_t * quick_access_area;
-    lv_obj_t * list_device;
-    lv_obj_t * list_places;
-    char * home_dir;
-    char * music_dir;
-    char * pictures_dir;
-    char * video_dir;
-    char * docs_dir;
-    char * fs_dir;
-#endif
-    const char * sel_fn;
-    char   current_path[LV_FILE_EXPLORER_PATH_MAX_LEN];
-    lv_file_explorer_sort_t sort;
-} lv_file_explorer_t;
 
 extern const lv_obj_class_t lv_file_explorer_class;
 

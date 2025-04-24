@@ -35,7 +35,7 @@
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *      MACROS
@@ -56,7 +56,7 @@ void lv_draw_eve_triangle(lv_draw_eve_unit_t *draw_unit, const lv_draw_triangle_
 
     bool is_common;
     lv_area_t draw_area;
-    is_common = _lv_area_intersect(&draw_area, &tri_area, draw_unit->base_unit.clip_area);
+    is_common = lv_area_intersect(&draw_area, &tri_area, draw_unit->base_unit.clip_area);
     if (!is_common)
         return;
 

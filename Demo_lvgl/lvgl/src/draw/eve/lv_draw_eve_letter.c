@@ -59,7 +59,7 @@ static lv_draw_eve_unit_t * unit = NULL;
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *      MACROS
@@ -129,7 +129,7 @@ static uint32_t _get_glyph_dsc_id(const lv_font_t * font, uint32_t letter)
         }
         else if(fdsc->cmaps[i].type == LV_FONT_FMT_TXT_CMAP_SPARSE_TINY) {
             uint16_t key = rcp;
-            uint16_t * p = _lv_utils_bsearch(&key, fdsc->cmaps[i].unicode_list, fdsc->cmaps[i].list_length,
+            uint16_t * p = lv_utils_bsearch(&key, fdsc->cmaps[i].unicode_list, fdsc->cmaps[i].list_length,
                                              sizeof(fdsc->cmaps[i].unicode_list[0]), _unicode_list_compare);
 
             if(p) {
@@ -139,7 +139,7 @@ static uint32_t _get_glyph_dsc_id(const lv_font_t * font, uint32_t letter)
         }
         else if(fdsc->cmaps[i].type == LV_FONT_FMT_TXT_CMAP_SPARSE_FULL) {
             uint16_t key = rcp;
-            uint16_t * p = _lv_utils_bsearch(&key, fdsc->cmaps[i].unicode_list, fdsc->cmaps[i].list_length,
+            uint16_t * p = lv_utils_bsearch(&key, fdsc->cmaps[i].unicode_list, fdsc->cmaps[i].list_length,
                                              sizeof(fdsc->cmaps[i].unicode_list[0]), _unicode_list_compare);
 
             if(p) {
@@ -209,7 +209,7 @@ static void lv_draw_eve_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_
     EVE_CoDl_colorRgb(s_pHalContext, glyph_draw_dsc->color.red, glyph_draw_dsc->color.green, glyph_draw_dsc->color.blue);
     //LV_LOG_INFO("bpp %d, box_w %d, box_h %d, color r %d, g %d, b %d\n", bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h, glyph_draw_dsc->color.red, glyph_draw_dsc->color.green, glyph_draw_dsc->color.blue);
     //LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", glyph_draw_dsc->letter_coords->x1, glyph_draw_dsc->letter_coords->y1, glyph_draw_dsc->letter_coords->x2, glyph_draw_dsc->letter_coords->y2);
-#if defined(FT81X_ENABLE) || defined(BT88X_ENABLE)
+#if defined(FT81X_ENABLE) || defined(BT88X_ENABLE) || defined(BT820_ENABLE)
     EVE_CoCmd_setBitmap(s_pHalContext, addr_font[font_eveId][gid], bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h);
 #else
     EVE_CoDl_bitmapSource(s_pHalContext, addr_font[font_eveId][gid]);
@@ -273,7 +273,7 @@ static uint32_t eve_lv_font_to_ramg(const lv_font_t * font_p, uint8_t font_eveId
                     load_buf_to_ramg(addr, map_p, buffer_size); /*Write glyph bitmap to EVE memory*/
                 }
 
-                addr += buffer_size;
+                addr += ((buffer_size + 3) & ~3);   // 4-byte aligned for BT820. Important!!!
 
             }
         }

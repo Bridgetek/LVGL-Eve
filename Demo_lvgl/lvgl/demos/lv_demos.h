@@ -59,10 +59,6 @@ extern "C" {
 #include "render/lv_demo_render.h"
 #endif
 
-#if LV_USE_DEMO_2048
-#include "2048/lv_demo_2048.h"
-#endif
-
 /*********************
  *      DEFINES
  *********************/

@@ -7,7 +7,7 @@
  *      INCLUDES
  *********************/
 
-#include "lv_xkb.h"
+#include "lv_xkb_private.h"
 
 #if defined(LV_LIBINPUT_XKB) && LV_LIBINPUT_XKB
 
@@ -119,6 +119,14 @@ uint32_t lv_xkb_process_key(lv_xkb_t * dsc, uint32_t scancode, bool down)
             break;
         case XKB_KEY_ISO_Left_Tab: /* Sent on SHIFT + TAB */
             result = LV_KEY_PREV;
+            break;
+        case XKB_KEY_Home:
+        case XKB_KEY_KP_Home:
+            result = LV_KEY_HOME;
+            break;
+        case XKB_KEY_End:
+        case XKB_KEY_KP_End:
+            result = LV_KEY_END;
             break;
         default:
             break;

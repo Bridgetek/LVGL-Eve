@@ -1,5 +1,6 @@
 #if LV_BUILD_TEST
 #include "../lvgl.h"
+#include "../../lvgl_private.h"
 
 #include "unity/unity.h"
 
@@ -49,13 +50,10 @@ void test_switch_should_have_default_state_after_being_created(void)
 void test_switch_should_not_leak_memory_after_deletion(void)
 {
     size_t idx = 0;
-    uint32_t initial_available_memory = 0;
-    uint32_t final_available_memory = 0;
-    lv_mem_monitor_t monitor;
+    size_t initial_available_memory = 0;
     lv_obj_t * switches[SWITCHES_CNT] = {NULL};
 
-    lv_mem_monitor(&monitor);
-    initial_available_memory = monitor.free_size;
+    initial_available_memory = lv_test_get_free_mem();
 
     for(idx = 0; idx < SWITCHES_CNT; idx++) {
         switches[idx] = lv_switch_create(scr);
@@ -65,10 +63,8 @@ void test_switch_should_not_leak_memory_after_deletion(void)
         lv_obj_delete(switches[idx]);
     }
 
-    lv_mem_monitor(&monitor);
-    final_available_memory = monitor.free_size;
-
-    LV_HEAP_CHECK(TEST_ASSERT_LESS_OR_EQUAL(initial_available_memory, final_available_memory));
+    LV_UNUSED(initial_available_memory);
+    LV_HEAP_CHECK(TEST_ASSERT_MEM_LEAK_LESS_THAN(initial_available_memory, 24));
 }
 
 void test_switch_animation(void)
@@ -94,7 +90,7 @@ void test_switch_animation(void)
 
 void test_switch_should_not_have_extra_draw_size_at_creation(void)
 {
-    int32_t extra_size = _lv_obj_get_ext_draw_size(sw);
+    int32_t extra_size = lv_obj_get_ext_draw_size(sw);
 
     TEST_ASSERT_EQUAL(0, extra_size);
 }
@@ -103,7 +99,7 @@ void test_switch_should_update_extra_draw_size_after_editing_padding(void)
 {
     int32_t pad = 6;
     int32_t actual = 0;
-    int32_t expected = pad + _LV_SWITCH_KNOB_EXT_AREA_CORRECTION;
+    int32_t expected = pad + LV_SWITCH_KNOB_EXT_AREA_CORRECTION;
 
     static lv_style_t style_knob;
     lv_style_init(&style_knob);
@@ -114,7 +110,7 @@ void test_switch_should_update_extra_draw_size_after_editing_padding(void)
     lv_obj_center(sw);
 
     /* Get extra draw size */
-    actual = _lv_obj_get_ext_draw_size(sw);
+    actual = lv_obj_get_ext_draw_size(sw);
 
     TEST_ASSERT_EQUAL(expected, actual);
 }

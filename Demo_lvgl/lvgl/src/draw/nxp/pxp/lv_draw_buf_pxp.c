@@ -15,7 +15,9 @@
 
 #include "lv_draw_pxp.h"
 
+#if LV_USE_PXP
 #if LV_USE_DRAW_PXP
+#include "../../lv_draw_buf_private.h"
 #include "lv_pxp_cfg.h"
 #include "lv_pxp_utils.h"
 
@@ -33,7 +35,7 @@
  *  STATIC PROTOTYPES
  **********************/
 
-static void _invalidate_cache(void * buf, uint32_t stride, lv_color_format_t cf, const lv_area_t * area);
+static void _invalidate_cache(const lv_draw_buf_t * draw_buf, const lv_area_t * area);
 
 /**********************
  *  STATIC VARIABLES
@@ -50,29 +52,33 @@ static void _invalidate_cache(void * buf, uint32_t stride, lv_color_format_t cf,
 void lv_draw_buf_pxp_init_handlers(void)
 {
     lv_draw_buf_handlers_t * handlers = lv_draw_buf_get_handlers();
+    lv_draw_buf_handlers_t * font_handlers = lv_draw_buf_get_font_handlers();
+    lv_draw_buf_handlers_t * image_handlers = lv_draw_buf_get_image_handlers();
 
     handlers->invalidate_cache_cb = _invalidate_cache;
+    font_handlers->invalidate_cache_cb = _invalidate_cache;
+    image_handlers->invalidate_cache_cb = _invalidate_cache;
 }
 
 /**********************
  *   STATIC FUNCTIONS
  **********************/
 
-static void _invalidate_cache(lv_draw_buf_t * draw_buf, const lv_area_t * area)
+static void _invalidate_cache(const lv_draw_buf_t * draw_buf, const lv_area_t * area)
 {
     const lv_image_header_t * header = &draw_buf->header;
     uint32_t stride = header->stride;
     lv_color_format_t cf = header->cf;
 
     if(area->y1 == 0) {
-        uint16_t size = stride * lv_area_get_height(area);
+        uint32_t size = stride * lv_area_get_height(area);
 
         /* Invalidate full buffer. */
-        DEMO_CleanInvalidateCacheByAddr((void *)buf, size);
+        DEMO_CleanInvalidateCacheByAddr((void *)draw_buf->data, size);
         return;
     }
 
-    const uint8_t * buf_u8 = buf;
+    const uint8_t * buf_u8 = draw_buf->data;
     /* ARM require a 32 byte aligned address. */
     uint8_t align_bytes = 32;
     uint8_t bits_per_pixel = lv_color_format_get_bpp(cf);
@@ -108,3 +114,4 @@ static void _invalidate_cache(lv_draw_buf_t * draw_buf, const lv_area_t * area)
 }
 
 #endif /*LV_USE_DRAW_PXP*/
+#endif /*LV_USE_PXP*/

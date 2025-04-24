@@ -6,6 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
+#include "blend/lv_draw_sw_blend_private.h"
+#include "../lv_draw_label_private.h"
 #include "lv_draw_sw.h"
 #if LV_USE_DRAW_SW
 
@@ -15,7 +17,7 @@
 #include "../../misc/lv_area.h"
 #include "../../misc/lv_style.h"
 #include "../../font/lv_font.h"
-#include "../../core/lv_refr.h"
+#include "../../core/lv_refr_private.h"
 #include "../../stdlib/lv_string.h"
 
 /*********************
@@ -79,7 +81,10 @@ static void LV_ATTRIBUTE_FAST_MEM draw_letter_cb(lv_draw_unit_t * draw_unit, lv_
 #endif
                 }
                 break;
-            case LV_FONT_GLYPH_FORMAT_A1 ... LV_FONT_GLYPH_FORMAT_A8: {
+            case LV_FONT_GLYPH_FORMAT_A1:
+            case LV_FONT_GLYPH_FORMAT_A2:
+            case LV_FONT_GLYPH_FORMAT_A4:
+            case LV_FONT_GLYPH_FORMAT_A8: {
                     lv_area_t mask_area = *glyph_draw_dsc->letter_coords;
                     mask_area.x2 = mask_area.x1 + lv_draw_buf_width_to_stride(lv_area_get_width(&mask_area), LV_COLOR_FORMAT_A8) - 1;
                     lv_draw_sw_blend_dsc_t blend_dsc;

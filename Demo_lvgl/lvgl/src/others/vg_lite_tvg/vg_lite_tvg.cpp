@@ -119,6 +119,11 @@ typedef struct {
     uint8_t alpha;
 } vg_color32_t;
 
+typedef struct {
+    vg_lite_float_t x;
+    vg_lite_float_t y;
+} vg_lite_fpoint_t;
+
 #pragma pack()
 
 class vg_lite_ctx
@@ -264,6 +269,9 @@ static vg_lite_error_t vg_lite_error_conv(Result result);
 static Matrix matrix_conv(const vg_lite_matrix_t * matrix);
 static FillRule fill_rule_conv(vg_lite_fill_t fill);
 static BlendMethod blend_method_conv(vg_lite_blend_t blend);
+static StrokeCap stroke_cap_conv(vg_lite_cap_style_t cap);
+static StrokeJoin stroke_join_conv(vg_lite_join_style_t join);
+static FillSpread fill_spread_conv(vg_lite_gradient_spreadmode_t spread);
 static Result shape_append_path(std::unique_ptr<Shape> & shape, vg_lite_path_t * path, vg_lite_matrix_t * matrix);
 static Result shape_append_rect(std::unique_ptr<Shape> & shape, const vg_lite_buffer_t * target,
                                 const vg_lite_rectangle_t * rect);
@@ -288,6 +296,10 @@ static void get_format_bytes(vg_lite_buffer_format_t format,
                              vg_lite_uint32_t * div,
                              vg_lite_uint32_t * bytes_align);
 
+static vg_lite_fpoint_t matrix_transform_point(const vg_lite_matrix_t * matrix, const vg_lite_fpoint_t * point);
+static bool vg_lite_matrix_inverse(vg_lite_matrix_t * result, const vg_lite_matrix_t * matrix);
+static void vg_lite_matrix_multiply(vg_lite_matrix_t * matrix, const vg_lite_matrix_t * mult);
+
 /**********************
  *  STATIC VARIABLES
  **********************/
@@ -298,9 +310,9 @@ static vg_lite_converter<vg_color16_t, vg_color32_t> conv_bgra8888_to_bgr565(
     [](vg_color16_t * dest, const vg_color32_t * src, vg_lite_uint32_t px_size, vg_lite_uint32_t /* color */)
 {
     while(px_size--) {
-        dest->red = src->red >> 3;
-        dest->green = src->green >> 2;
-        dest->blue = src->blue >> 3;
+        dest->red = src->red * 0x1F / 0xFF;
+        dest->green = src->green * 0x3F / 0xFF;
+        dest->blue = src->blue * 0x1F / 0xFF;
         src++;
         dest++;
     }
@@ -310,9 +322,9 @@ static vg_lite_converter<vg_color16_alpha_t, vg_color32_t> conv_bgra8888_to_bgra
     [](vg_color16_alpha_t * dest, const vg_color32_t * src, vg_lite_uint32_t px_size, vg_lite_uint32_t /* color */)
 {
     while(px_size--) {
-        dest->c.red = src->red >> 3;
-        dest->c.green = src->green >> 2;
-        dest->c.blue = src->blue >> 3;
+        dest->c.red = src->red * 0x1F / 0xFF;
+        dest->c.green = src->green * 0x3F / 0xFF;
+        dest->c.blue = src->blue * 0x1F / 0xFF;
         dest->alpha = src->alpha;
         src++;
         dest++;
@@ -323,9 +335,9 @@ static vg_lite_converter<vg_color32_t, vg_color16_t> conv_bgr565_to_bgra8888(
     [](vg_color32_t * dest, const vg_color16_t * src, vg_lite_uint32_t px_size, vg_lite_uint32_t /* color */)
 {
     while(px_size--) {
-        dest->red = src->red << 3;
-        dest->green = src->green << 2;
-        dest->blue = src->blue << 3;
+        dest->red = src->red * 0xFF / 0x1F;
+        dest->green = src->green * 0xFF / 0x3F;
+        dest->blue = src->blue * 0xFF / 0x1F;
         dest->alpha = 0xFF;
         src++;
         dest++;
@@ -336,9 +348,9 @@ static vg_lite_converter<vg_color32_t, vg_color16_alpha_t> conv_bgra5658_to_bgra
     [](vg_color32_t * dest, const vg_color16_alpha_t * src, vg_lite_uint32_t px_size, vg_lite_uint32_t /* color */)
 {
     while(px_size--) {
-        dest->red = src->c.red << 3;
-        dest->green = src->c.green << 2;
-        dest->blue = src->c.blue << 3;
+        dest->red = src->c.red * 0xFF / 0x1F;
+        dest->green = src->c.green * 0xFF / 0x3F;
+        dest->blue = src->c.blue * 0xFF / 0x1F;
         dest->alpha = src->alpha;
         src++;
         dest++;
@@ -451,7 +463,14 @@ extern "C" {
         vg_lite_uint32_t stride = VG_LITE_ALIGN((buffer->width * mul / div), align);
 
         buffer->stride = stride;
-        buffer->memory = aligned_alloc(LV_VG_LITE_THORVG_BUF_ADDR_ALIGN, stride * buffer->height);
+
+        /* Size must be multiple of align, See: https://en.cppreference.com/w/c/memory/aligned_alloc */
+        size_t size = VG_LITE_ALIGN(buffer->height * stride, LV_VG_LITE_THORVG_BUF_ADDR_ALIGN);
+#ifndef _WIN32
+        buffer->memory = aligned_alloc(LV_VG_LITE_THORVG_BUF_ADDR_ALIGN, size);
+#else
+        buffer->memory = _aligned_malloc(size, LV_VG_LITE_THORVG_BUF_ADDR_ALIGN);
+#endif
         LV_ASSERT(buffer->memory);
         buffer->address = (vg_lite_uint32_t)(uintptr_t)buffer->memory;
         buffer->handle = buffer->memory;
@@ -461,7 +480,11 @@ extern "C" {
     vg_lite_error_t vg_lite_free(vg_lite_buffer_t * buffer)
     {
         LV_ASSERT(buffer->memory);
+#ifndef _WIN32
         free(buffer->memory);
+#else
+        _aligned_free(buffer->memory);
+#endif
         memset(buffer, 0, sizeof(vg_lite_buffer_t));
         return VG_LITE_SUCCESS;
     }
@@ -495,6 +518,7 @@ extern "C" {
 
         auto shape = Shape::gen();
         TVG_CHECK_RETURN_VG_ERROR(shape_append_rect(shape, target, rectangle));
+        TVG_CHECK_RETURN_VG_ERROR(shape->blend(BlendMethod::SrcOver));
         TVG_CHECK_RETURN_VG_ERROR(shape->fill(TVG_COLOR(color)));
         TVG_CHECK_RETURN_VG_ERROR(ctx->canvas->push(std::move(shape)));
 
@@ -594,9 +618,9 @@ extern "C" {
     static void picture_bgra8888_to_bgr565(vg_color16_t * dest, const vg_color32_t * src, vg_lite_uint32_t px_size)
     {
         while(px_size--) {
-            dest->red = src->red >> 3;
-            dest->green = src->green >> 2;
-            dest->blue = src->blue >> 3;
+            dest->red = src->red * 0x1F / 0xFF;
+            dest->green = src->green * 0x3F / 0xFF;
+            dest->blue = src->blue * 0x1F / 0xFF;
             src++;
             dest++;
         }
@@ -605,9 +629,9 @@ extern "C" {
     static void picture_bgra8888_to_bgra5658(vg_color16_alpha_t * dest, const vg_color32_t * src, vg_lite_uint32_t px_size)
     {
         while(px_size--) {
-            dest->c.red = src->red >> 3;
-            dest->c.green = src->green >> 2;
-            dest->c.blue = src->blue >> 3;
+            dest->c.red = src->red * 0x1F / 0xFF;
+            dest->c.green = src->green * 0x3F / 0xFF;
+            dest->c.blue = src->blue * 0x1F / 0xFF;
             dest->alpha = src->alpha;
             src++;
             dest++;
@@ -702,6 +726,65 @@ extern "C" {
         return VG_LITE_SUCCESS;
     }
 
+    vg_lite_error_t vg_lite_set_stroke(vg_lite_path_t * path,
+                                       vg_lite_cap_style_t cap_style,
+                                       vg_lite_join_style_t join_style,
+                                       vg_lite_float_t line_width,
+                                       vg_lite_float_t miter_limit,
+                                       vg_lite_float_t * dash_pattern,
+                                       vg_lite_uint32_t pattern_count,
+                                       vg_lite_float_t dash_phase,
+                                       vg_lite_color_t color)
+    {
+        if(!path || line_width <= 0) {
+            return VG_LITE_INVALID_ARGUMENT;
+        }
+
+        if(miter_limit < 1.0f) {
+            miter_limit = 1.0f;
+        }
+
+        if(!path->stroke) {
+            path->stroke = (vg_lite_stroke_t *)lv_malloc_zeroed(sizeof(vg_lite_stroke_t));
+
+            if(!path->stroke) {
+                return VG_LITE_OUT_OF_RESOURCES;
+            }
+        }
+
+        path->stroke->cap_style = cap_style;
+        path->stroke->join_style = join_style;
+        path->stroke->line_width = line_width;
+        path->stroke->miter_limit = miter_limit;
+        path->stroke->half_width = line_width / 2.0f;
+        path->stroke->miter_square = path->stroke->miter_limit * path->stroke->miter_limit;
+        path->stroke->dash_pattern = dash_pattern;
+        path->stroke->pattern_count = pattern_count;
+        path->stroke->dash_phase = dash_phase;
+        path->stroke_color = color;
+        return VG_LITE_SUCCESS;
+    }
+
+    vg_lite_error_t vg_lite_update_stroke(vg_lite_path_t * path)
+    {
+        LV_UNUSED(path);
+        return VG_LITE_SUCCESS;
+    }
+
+    vg_lite_error_t vg_lite_set_path_type(vg_lite_path_t * path, vg_lite_path_type_t path_type)
+    {
+        if(!path ||
+           (path_type != VG_LITE_DRAW_FILL_PATH &&
+            path_type != VG_LITE_DRAW_STROKE_PATH &&
+            path_type != VG_LITE_DRAW_FILL_STROKE_PATH)
+          )
+            return VG_LITE_INVALID_ARGUMENT;
+
+        path->path_type = path_type;
+
+        return VG_LITE_SUCCESS;
+    }
+
     vg_lite_error_t vg_lite_get_register(vg_lite_uint32_t address, vg_lite_uint32_t * result)
     {
         LV_UNUSED(address);
@@ -738,6 +821,8 @@ extern "C" {
             case gcFEATURE_BIT_VG_24BIT:
             case gcFEATURE_BIT_VG_DITHER:
             case gcFEATURE_BIT_VG_USE_DST:
+            case gcFEATURE_BIT_VG_RADIAL_GRADIENT:
+            case gcFEATURE_BIT_VG_IM_REPEAT_REFLECT:
 
 #if LV_VG_LITE_THORVG_LVGL_BLEND_SUPPORT
             case gcFEATURE_BIT_VG_LVGL_SUPPORT:
@@ -745,6 +830,10 @@ extern "C" {
 
 #if LV_VG_LITE_THORVG_YUV_SUPPORT
             case gcFEATURE_BIT_VG_YUV_INPUT:
+#endif
+
+#if LV_VG_LITE_THORVG_LINEAR_GRADIENT_EXT_SUPPORT
+            case gcFEATURE_BIT_VG_LINEAR_GRADIENT_EXT:
 #endif
 
 #if LV_VG_LITE_THORVG_16PIXELS_ALIGN
@@ -768,6 +857,8 @@ extern "C" {
         if(!path) {
             return VG_LITE_INVALID_ARGUMENT;
         }
+
+        lv_memzero(path, sizeof(vg_lite_path_t));
 
         path->format = data_format;
         path->quality = quality;
@@ -811,8 +902,14 @@ extern "C" {
 
     vg_lite_error_t vg_lite_clear_path(vg_lite_path_t * path)
     {
-        LV_UNUSED(path);
-        return VG_LITE_NOT_SUPPORT;
+        LV_ASSERT_NULL(path);
+
+        if(path->stroke) {
+            lv_free(path->stroke);
+            path->stroke = NULL;
+        }
+
+        return VG_LITE_SUCCESS;
     }
 
     vg_lite_uint32_t vg_lite_get_path_length(vg_lite_uint8_t * opcode,
@@ -984,7 +1081,7 @@ extern "C" {
             /* Clamp color. */
             ClampColor(COLOR_FROM_RAMP(src_ramp), COLOR_FROM_RAMP(trg_ramp), 0);
 
-            /* First stop greater then zero? */
+            /* First stop greater than zero? */
             if((trg_count == 0) && (src_ramp->stop > 0.0f)) {
                 /* Force the first stop to 0.0f. */
                 trg_ramp->stop = 0.0f;
@@ -1176,6 +1273,49 @@ Empty_sequence_handler:
         return VG_LITE_SUCCESS;
     }
 
+    vg_lite_error_t vg_lite_draw_linear_grad(vg_lite_buffer_t * target,
+                                             vg_lite_path_t * path,
+                                             vg_lite_fill_t fill_rule,
+                                             vg_lite_matrix_t * path_matrix,
+                                             vg_lite_ext_linear_gradient_t * grad,
+                                             vg_lite_color_t paint_color,
+                                             vg_lite_blend_t blend,
+                                             vg_lite_filter_t filter)
+    {
+        LV_UNUSED(paint_color);
+        LV_UNUSED(filter);
+
+        auto ctx = vg_lite_ctx::get_instance();
+        TVG_CHECK_RETURN_VG_ERROR(canvas_set_target(ctx, target));
+
+        auto shape = Shape::gen();
+        TVG_CHECK_RETURN_VG_ERROR(shape_append_path(shape, path, path_matrix));
+        TVG_CHECK_RETURN_VG_ERROR(shape->transform(matrix_conv(path_matrix)));
+        TVG_CHECK_RETURN_VG_ERROR(shape->fill(fill_rule_conv(fill_rule)););
+        TVG_CHECK_RETURN_VG_ERROR(shape->blend(blend_method_conv(blend)));
+
+        auto linearGrad = LinearGradient::gen();
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->linear(grad->linear_grad.X0, grad->linear_grad.Y0, grad->linear_grad.X1,
+                                                     grad->linear_grad.Y1));
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->transform(matrix_conv(&grad->matrix)));
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->spread(fill_spread_conv(grad->spread_mode)));
+
+        tvg::Fill::ColorStop colorStops[VLC_MAX_COLOR_RAMP_STOPS];
+        for(vg_lite_uint32_t i = 0; i < grad->ramp_length; i++) {
+            colorStops[i].offset = grad->color_ramp[i].stop;
+            colorStops[i].r = grad->color_ramp[i].red * 255.0f;
+            colorStops[i].g = grad->color_ramp[i].green * 255.0f;
+            colorStops[i].b = grad->color_ramp[i].blue * 255.0f;
+            colorStops[i].a = grad->color_ramp[i].alpha * 255.0f;
+        }
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->colorStops(colorStops, grad->ramp_length));
+
+        TVG_CHECK_RETURN_VG_ERROR(shape->fill(std::move(linearGrad)));
+        TVG_CHECK_RETURN_VG_ERROR(ctx->canvas->push(std::move(shape)));
+
+        return VG_LITE_SUCCESS;
+    }
+
     vg_lite_error_t vg_lite_set_radial_grad(vg_lite_radial_gradient_t * grad,
                                             vg_lite_uint32_t count,
                                             vg_lite_color_ramp_t * color_ramp,
@@ -1252,7 +1392,7 @@ Empty_sequence_handler:
             /* Clamp color. */
             ClampColor(COLOR_FROM_RAMP(srcRamp), COLOR_FROM_RAMP(trgRamp), 0);
 
-            /* First stop greater then zero? */
+            /* First stop greater than zero? */
             if((trgCount == 0) && (srcRamp->stop > 0.0f)) {
                 /* Force the first stop to 0.0f. */
                 trgRamp->stop = 0.0f;
@@ -1608,24 +1748,32 @@ Empty_sequence_handler:
         TVG_CHECK_RETURN_VG_ERROR(shape->fill(fill_rule_conv(fill_rule)););
         TVG_CHECK_RETURN_VG_ERROR(shape->blend(blend_method_conv(blend)));
 
-        float x_min = path->bounding_box[0];
-        float y_min = path->bounding_box[1];
-        float x_max = path->bounding_box[2];
-        float y_max = path->bounding_box[3];
+        vg_lite_matrix_t grad_matrix;
+        vg_lite_identity(&grad_matrix);
+        vg_lite_matrix_inverse(&grad_matrix, matrix);
+        vg_lite_matrix_multiply(&grad_matrix, &grad->matrix);
 
+        vg_lite_fpoint_t p1 = {0.0f, 0.0f};
+        vg_lite_fpoint_t p2 = {1.0f, 0};
+
+        vg_lite_fpoint_t p1_trans = p1;
+        vg_lite_fpoint_t p2_trans = p2;
+
+        p1_trans = matrix_transform_point(&grad_matrix, &p1);
+        p2_trans = matrix_transform_point(&grad_matrix, &p2);
+        float dx = (p2_trans.x - p1_trans.x);
+        float dy = (p2_trans.y - p1_trans.y);
+        float scale = sqrtf(dx * dx + dy * dy);
+        float angle = (float)(atan2f(dy, dx));
+        float dlen = 256 * scale;
+        float x_min = grad_matrix.m[0][2];
+        float y_min = grad_matrix.m[1][2];
+        float x_max = x_min + dlen * cosf(angle);
+        float y_max = y_min + dlen * sinf(angle);
+        LV_LOG_TRACE("linear gradient {%.2f, %.2f} ~ {%.2f, %.2f}", x_min, y_min, x_max, y_max);
         auto linearGrad = LinearGradient::gen();
-
-        if(matrix->m[0][1] != 0) {
-            /* vertical */
-            linearGrad->linear(x_min, y_min, x_min, y_max);
-        }
-        else {
-            /* horizontal */
-            linearGrad->linear(x_min, y_min, x_max, y_min);
-        }
-
-        linearGrad->transform(matrix_conv(&grad->matrix));
-        linearGrad->spread(FillSpread::Reflect);
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->linear(x_min, y_min, x_max, y_max));
+        TVG_CHECK_RETURN_VG_ERROR(linearGrad->spread(FillSpread::Pad));
 
         tvg::Fill::ColorStop colorStops[VLC_MAX_GRADIENT_STOPS];
         for(vg_lite_uint32_t i = 0; i < grad->count; i++) {
@@ -1652,15 +1800,37 @@ Empty_sequence_handler:
                                              vg_lite_blend_t blend,
                                              vg_lite_filter_t filter)
     {
-        LV_UNUSED(target);
-        LV_UNUSED(path);
-        LV_UNUSED(fill_rule);
-        LV_UNUSED(path_matrix);
-        LV_UNUSED(grad);
         LV_UNUSED(paint_color);
-        LV_UNUSED(blend);
         LV_UNUSED(filter);
-        return VG_LITE_NOT_SUPPORT;
+
+        auto ctx = vg_lite_ctx::get_instance();
+        TVG_CHECK_RETURN_VG_ERROR(canvas_set_target(ctx, target));
+
+        auto shape = Shape::gen();
+        TVG_CHECK_RETURN_VG_ERROR(shape_append_path(shape, path, path_matrix));
+        TVG_CHECK_RETURN_VG_ERROR(shape->transform(matrix_conv(path_matrix)));
+        TVG_CHECK_RETURN_VG_ERROR(shape->fill(fill_rule_conv(fill_rule)););
+        TVG_CHECK_RETURN_VG_ERROR(shape->blend(blend_method_conv(blend)));
+
+        auto radialGrad = RadialGradient::gen();
+        TVG_CHECK_RETURN_VG_ERROR(radialGrad->transform(matrix_conv(&grad->matrix)));
+        TVG_CHECK_RETURN_VG_ERROR(radialGrad->radial(grad->radial_grad.cx, grad->radial_grad.cy, grad->radial_grad.r));
+        TVG_CHECK_RETURN_VG_ERROR(radialGrad->spread(fill_spread_conv(grad->spread_mode)));
+
+        tvg::Fill::ColorStop colorStops[VLC_MAX_COLOR_RAMP_STOPS];
+        for(vg_lite_uint32_t i = 0; i < grad->ramp_length; i++) {
+            colorStops[i].offset = grad->color_ramp[i].stop;
+            colorStops[i].r = grad->color_ramp[i].red * 255.0f;
+            colorStops[i].g = grad->color_ramp[i].green * 255.0f;
+            colorStops[i].b = grad->color_ramp[i].blue * 255.0f;
+            colorStops[i].a = grad->color_ramp[i].alpha * 255.0f;
+        }
+        TVG_CHECK_RETURN_VG_ERROR(radialGrad->colorStops(colorStops, grad->ramp_length));
+
+        TVG_CHECK_RETURN_VG_ERROR(shape->fill(std::move(radialGrad)));
+        TVG_CHECK_RETURN_VG_ERROR(ctx->canvas->push(std::move(shape)));
+
+        return VG_LITE_SUCCESS;
     }
 
     vg_lite_error_t vg_lite_set_command_buffer_size(vg_lite_uint32_t size)
@@ -1863,6 +2033,52 @@ static BlendMethod blend_method_conv(vg_lite_blend_t blend)
     return BlendMethod::Normal;
 }
 
+static StrokeCap stroke_cap_conv(vg_lite_cap_style_t cap)
+{
+    switch(cap) {
+        case VG_LITE_CAP_SQUARE:
+            return StrokeCap::Square;
+        case VG_LITE_CAP_ROUND:
+            return StrokeCap::Round;
+        case VG_LITE_CAP_BUTT:
+            return StrokeCap::Butt;
+        default:
+            break;
+    }
+
+    return StrokeCap::Square;
+}
+
+static StrokeJoin stroke_join_conv(vg_lite_join_style_t join)
+{
+    switch(join) {
+        case VG_LITE_JOIN_BEVEL:
+            return StrokeJoin::Bevel;
+        case VG_LITE_JOIN_ROUND:
+            return StrokeJoin::Round;
+        case VG_LITE_JOIN_MITER:
+            return StrokeJoin::Miter;
+        default:
+            break;
+    }
+
+    return StrokeJoin::Bevel;
+}
+
+static FillSpread fill_spread_conv(vg_lite_gradient_spreadmode_t spread)
+{
+    switch(spread) {
+        case VG_LITE_GRADIENT_SPREAD_PAD:
+            return FillSpread::Pad;
+        case VG_LITE_GRADIENT_SPREAD_REPEAT:
+            return FillSpread::Repeat;
+        case VG_LITE_GRADIENT_SPREAD_REFLECT:
+            return FillSpread::Reflect;
+        default:
+            return FillSpread::Pad;
+    }
+}
+
 static float vlc_get_arg(const void * data, vg_lite_format_t format)
 {
     switch(format) {
@@ -1936,6 +2152,38 @@ static uint8_t vlc_op_arg_len(uint8_t vlc_op)
     return 0;
 }
 
+static Result shape_set_stroke(std::unique_ptr<Shape> & shape, const vg_lite_path_t * path)
+{
+    switch(path->path_type) {
+        case VG_LITE_DRAW_ZERO:
+        case VG_LITE_DRAW_FILL_PATH:
+            /* if path is not a stroke, return */
+            return Result::Success;
+
+        case VG_LITE_DRAW_STROKE_PATH:
+        case VG_LITE_DRAW_FILL_STROKE_PATH:
+            break;
+
+        default:
+            LV_LOG_ERROR("unknown path type: %d", path->path_type);
+            return Result::InvalidArguments;
+    }
+
+    LV_ASSERT_NULL(path->stroke);
+    TVG_CHECK_RETURN_RESULT(shape->stroke(path->stroke->line_width));
+    TVG_CHECK_RETURN_RESULT(shape->strokeMiterlimit(path->stroke->miter_limit));
+    TVG_CHECK_RETURN_RESULT(shape->stroke(stroke_cap_conv(path->stroke->cap_style)));
+    TVG_CHECK_RETURN_RESULT(shape->stroke(stroke_join_conv(path->stroke->join_style)));
+    TVG_CHECK_RETURN_RESULT(shape->stroke(TVG_COLOR(path->stroke_color)));
+
+    if(path->stroke->pattern_count) {
+        LV_ASSERT_NULL(path->stroke->dash_pattern);
+        TVG_CHECK_RETURN_RESULT(shape->stroke(path->stroke->dash_pattern, path->stroke->pattern_count));
+    }
+
+    return Result::Success;
+}
+
 static Result shape_append_path(std::unique_ptr<Shape> & shape, vg_lite_path_t * path, vg_lite_matrix_t * matrix)
 {
     uint8_t fmt_len = vlc_format_len(path->format);
@@ -1997,9 +2245,7 @@ static Result shape_append_path(std::unique_ptr<Shape> & shape, vg_lite_path_t *
                 break;
 
             case VLC_OP_CLOSE:
-            case VLC_OP_END: {
-                    TVG_CHECK_RETURN_RESULT(shape->close());
-                }
+                TVG_CHECK_RETURN_RESULT(shape->close());
                 break;
 
             default:
@@ -2014,10 +2260,12 @@ static Result shape_append_path(std::unique_ptr<Shape> & shape, vg_lite_path_t *
     float x_max = path->bounding_box[2];
     float y_max = path->bounding_box[3];
 
-    if(math_equal(x_min, __FLT_MIN__) && math_equal(y_min, __FLT_MIN__)
-       && math_equal(x_max, __FLT_MAX__) && math_equal(y_max, __FLT_MAX__)) {
+    if(math_equal(x_min, FLT_MIN) && math_equal(y_min, FLT_MIN)
+       && math_equal(x_max, FLT_MAX) && math_equal(y_max, FLT_MAX)) {
         return Result::Success;
     }
+
+    TVG_CHECK_RETURN_RESULT(shape_set_stroke(shape, path));
 
     auto cilp = Shape::gen();
     TVG_CHECK_RETURN_RESULT(cilp->appendRect(x_min, y_min, x_max - x_min, y_max - y_min, 0, 0));
@@ -2434,4 +2682,86 @@ static void get_format_bytes(vg_lite_buffer_format_t format,
             break;
     }
 }
+
+static vg_lite_fpoint_t matrix_transform_point(const vg_lite_matrix_t * matrix, const vg_lite_fpoint_t * point)
+{
+    vg_lite_fpoint_t p;
+    p.x = (vg_lite_float_t)(point->x * matrix->m[0][0] + point->y * matrix->m[0][1] + matrix->m[0][2]);
+    p.y = (vg_lite_float_t)(point->x * matrix->m[1][0] + point->y * matrix->m[1][1] + matrix->m[1][2]);
+    return p;
+}
+
+static bool vg_lite_matrix_inverse(vg_lite_matrix_t * result, const vg_lite_matrix_t * matrix)
+{
+    vg_lite_float_t det00, det01, det02;
+    vg_lite_float_t d;
+    bool is_affine;
+
+    /* Test for identity matrix. */
+    if(matrix == NULL) {
+        result->m[0][0] = 1.0f;
+        result->m[0][1] = 0.0f;
+        result->m[0][2] = 0.0f;
+        result->m[1][0] = 0.0f;
+        result->m[1][1] = 1.0f;
+        result->m[1][2] = 0.0f;
+        result->m[2][0] = 0.0f;
+        result->m[2][1] = 0.0f;
+        result->m[2][2] = 1.0f;
+
+        /* Success. */
+        return true;
+    }
+
+    det00 = (matrix->m[1][1] * matrix->m[2][2]) - (matrix->m[2][1] * matrix->m[1][2]);
+    det01 = (matrix->m[2][0] * matrix->m[1][2]) - (matrix->m[1][0] * matrix->m[2][2]);
+    det02 = (matrix->m[1][0] * matrix->m[2][1]) - (matrix->m[2][0] * matrix->m[1][1]);
+
+    /* Compute determinant. */
+    d = (matrix->m[0][0] * det00) + (matrix->m[0][1] * det01) + (matrix->m[0][2] * det02);
+
+    /* Return 0 if there is no inverse matrix. */
+    if(d == 0.0f)
+        return false;
+
+    /* Compute reciprocal. */
+    d = 1.0f / d;
+
+    /* Determine if the matrix is affine. */
+    is_affine = (matrix->m[2][0] == 0.0f) && (matrix->m[2][1] == 0.0f) && (matrix->m[2][2] == 1.0f);
+
+    result->m[0][0] = d * det00;
+    result->m[0][1] = d * ((matrix->m[2][1] * matrix->m[0][2]) - (matrix->m[0][1] * matrix->m[2][2]));
+    result->m[0][2] = d * ((matrix->m[0][1] * matrix->m[1][2]) - (matrix->m[1][1] * matrix->m[0][2]));
+    result->m[1][0] = d * det01;
+    result->m[1][1] = d * ((matrix->m[0][0] * matrix->m[2][2]) - (matrix->m[2][0] * matrix->m[0][2]));
+    result->m[1][2] = d * ((matrix->m[1][0] * matrix->m[0][2]) - (matrix->m[0][0] * matrix->m[1][2]));
+    result->m[2][0] = is_affine ? 0.0f : d * det02;
+    result->m[2][1] = is_affine ? 0.0f : d * ((matrix->m[2][0] * matrix->m[0][1]) - (matrix->m[0][0] * matrix->m[2][1]));
+    result->m[2][2] = is_affine ? 1.0f : d * ((matrix->m[0][0] * matrix->m[1][1]) - (matrix->m[1][0] * matrix->m[0][1]));
+
+    /* Success. */
+    return true;
+}
+
+static void vg_lite_matrix_multiply(vg_lite_matrix_t * matrix, const vg_lite_matrix_t * mult)
+{
+    vg_lite_matrix_t temp;
+    int row, column;
+
+    /* Process all rows. */
+    for(row = 0; row < 3; row++) {
+        /* Process all columns. */
+        for(column = 0; column < 3; column++) {
+            /* Compute matrix entry. */
+            temp.m[row][column] = (matrix->m[row][0] * mult->m[0][column])
+                                  + (matrix->m[row][1] * mult->m[1][column])
+                                  + (matrix->m[row][2] * mult->m[2][column]);
+        }
+    }
+
+    /* Copy temporary matrix into result. */
+    lv_memcpy(matrix->m, &temp.m, sizeof(temp.m));
+}
+
 #endif

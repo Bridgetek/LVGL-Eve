@@ -21,7 +21,7 @@
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *  STATIC VARIABLES
@@ -157,7 +157,7 @@ uint32_t find_ramg_font(const uint8_t * fontSource)
 
 void load_buf_to_ramg(uint32_t start_addr_ramg, uint8_t *buffer, uint32_t img_size)
 {
-    uint32_t chunksize = 16 * 1024;
+    uint32_t chunksize = 64 * 1024;
     uint32_t totalbufflen = 64 * 1024;
     uint32_t currreadlen = 0;
     uint32_t wrptr = start_addr_ramg;
@@ -174,7 +174,8 @@ void load_buf_to_ramg(uint32_t start_addr_ramg, uint8_t *buffer, uint32_t img_si
         EVE_Hal_wrMem(s_pHalContext, wrptr, &buffer[offset], currreadlen);
         offset += currreadlen;
         wrptr += currreadlen;
-        wrptr = wrptr % (start_addr_ramg + totalbufflen);
+        //wrptr = wrptr % (start_addr_ramg + totalbufflen);
+        wrptr = start_addr_ramg + ((wrptr - start_addr_ramg) % totalbufflen);
         img_size -= currreadlen;
 
         // if the file is sent over and there is one more chunk size free space.

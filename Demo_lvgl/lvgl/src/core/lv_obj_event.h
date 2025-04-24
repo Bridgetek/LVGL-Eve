@@ -13,7 +13,6 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include <stdbool.h>
 #include "../misc/lv_types.h"
 #include "../misc/lv_event.h"
 #include "../indev/lv_indev.h"
@@ -26,34 +25,12 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
-/**
- * Used as the event parameter of ::LV_EVENT_HIT_TEST to check if an `point` can click the object or not.
- * `res` should be set like this:
- *   - If already set to `false` an other event wants that point non clickable. If you want to respect it leave it as `false` or set `true` to overwrite it.
- *   - If already set `true` and `point` shouldn't be clickable set to `false`
- *   - If already set to `true` you agree that `point` can click the object leave it as `true`
- */
-typedef struct {
-    const lv_point_t * point;   /**< A point relative to screen to check if it can click the object or not*/
-    bool res;                   /**< true: `point` can click the object; false: it cannot*/
-} lv_hit_test_info_t;
-
 /** Cover check results.*/
 typedef enum {
     LV_COVER_RES_COVER      = 0,
     LV_COVER_RES_NOT_COVER  = 1,
     LV_COVER_RES_MASKED     = 2,
 } lv_cover_res_t;
-
-/**
- * Used as the event parameter of ::LV_EVENT_COVER_CHECK to check if an area is covered by the object or not.
- * In the event use `const lv_area_t * area = lv_event_get_cover_area(e)` to get the area to check
- * and `lv_event_set_cover_res(e, res)` to set the result.
- */
-typedef struct {
-    lv_cover_res_t res;
-    const lv_area_t * area;
-} lv_cover_check_info_t;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -98,10 +75,10 @@ lv_obj_t * lv_event_get_target_obj(lv_event_t * e);
  * @param obj       pointer to an object
  * @param filter    an event code (e.g. `LV_EVENT_CLICKED`) on which the event should be called. `LV_EVENT_ALL` can be used to receive all the events.
  * @param event_cb  the new event function
- * @param           user_data custom data data will be available in `event_cb`
+ * @param           user_data custom data will be available in `event_cb`
+ * @return          handler to the event. It can be used in `lv_obj_remove_event_dsc`.
  */
-void lv_obj_add_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb, lv_event_code_t filter,
-                         void * user_data);
+lv_event_dsc_t * lv_obj_add_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb, lv_event_code_t filter, void * user_data);
 
 uint32_t lv_obj_get_event_count(lv_obj_t * obj);
 
@@ -110,6 +87,8 @@ lv_event_dsc_t * lv_obj_get_event_dsc(lv_obj_t * obj, uint32_t index);
 bool lv_obj_remove_event(lv_obj_t * obj, uint32_t index);
 
 bool lv_obj_remove_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb);
+
+bool lv_obj_remove_event_dsc(lv_obj_t * obj, lv_event_dsc_t * dsc);
 
 /**
  * Remove an event_cb with user_data
@@ -148,6 +127,13 @@ const lv_area_t * lv_event_get_old_size(lv_event_t * e);
  * @return      the triggering key or NULL if called on an unrelated event
  */
 uint32_t lv_event_get_key(lv_event_t * e);
+
+/**
+ * Get the signed rotary encoder diff. passed as parameter to an event. Can be used in `LV_EVENT_ROTARY`
+ * @param e     pointer to an event
+ * @return      the triggering key or NULL if called on an unrelated event
+ */
+int32_t lv_event_get_rotary_diff(lv_event_t * e);
 
 /**
  * Get the animation descriptor of a scrolling. Can be used in `LV_EVENT_SCROLL_BEGIN`

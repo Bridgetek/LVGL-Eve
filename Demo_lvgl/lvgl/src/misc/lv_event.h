@@ -13,8 +13,6 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include <stdbool.h>
-#include <stdint.h>
 #include "lv_types.h"
 #include "../lv_conf_internal.h"
 
@@ -29,12 +27,6 @@ extern "C" {
  **********************/
 
 typedef void (*lv_event_cb_t)(lv_event_t * e);
-
-typedef struct {
-    lv_event_cb_t cb;
-    void * user_data;
-    uint32_t filter;
-} lv_event_dsc_t;
 
 /**
  * Type of event being sent to the object.
@@ -57,11 +49,14 @@ typedef enum {
     LV_EVENT_SCROLL,              /**< Scrolling*/
     LV_EVENT_GESTURE,             /**< A gesture is detected. Get the gesture with `lv_indev_get_gesture_dir(lv_indev_active());` */
     LV_EVENT_KEY,                 /**< A key is sent to the object. Get the key with `lv_indev_get_key(lv_indev_active());`*/
+    LV_EVENT_ROTARY,              /**< An encoder or wheel was rotated. Get the rotation count with `lv_event_get_rotary_diff(e);`*/
     LV_EVENT_FOCUSED,             /**< The object is focused*/
     LV_EVENT_DEFOCUSED,           /**< The object is defocused*/
     LV_EVENT_LEAVE,               /**< The object is defocused but still selected*/
     LV_EVENT_HIT_TEST,            /**< Perform advanced hit-testing*/
     LV_EVENT_INDEV_RESET,         /**< Indev has been reset*/
+    LV_EVENT_HOVER_OVER,          /**< Indev hover over object*/
+    LV_EVENT_HOVER_LEAVE,         /**< Indev hover leave object*/
 
     /** Drawing events*/
     LV_EVENT_COVER_CHECK,        /**< Check if the object fully covers an area. The event parameter is `lv_cover_check_info_t *`.*/
@@ -112,7 +107,7 @@ typedef enum {
 
     LV_EVENT_VSYNC,
 
-    _LV_EVENT_LAST,                 /** Number of default events*/
+    LV_EVENT_LAST,                 /** Number of default events*/
 
     LV_EVENT_PREPROCESS = 0x8000,   /** This is a flag that can be set with an event so it's processed
                                       before the class default event processing */
@@ -120,35 +115,16 @@ typedef enum {
 
 typedef lv_array_t lv_event_list_t;
 
-struct _lv_event_t {
-    void * current_target;
-    void * original_target;
-    lv_event_code_t code;
-    void * user_data;
-    void * param;
-    lv_event_t * prev;
-    uint8_t deleted : 1;
-    uint8_t stop_processing : 1;
-    uint8_t stop_bubbling : 1;
-};
-
 /**
  * @brief Event callback.
  * Events are used to notify the user of some action being taken on the object.
  * For details, see ::lv_event_t.
  */
 
-/**********************
- * GLOBAL PROTOTYPES
- **********************/
-
-void _lv_event_push(lv_event_t * e);
-
-void _lv_event_pop(lv_event_t * e);
-
 lv_result_t lv_event_send(lv_event_list_t * list, lv_event_t * e, bool preprocess);
 
-void lv_event_add(lv_event_list_t * list, lv_event_cb_t cb, lv_event_code_t filter, void * user_data);
+lv_event_dsc_t * lv_event_add(lv_event_list_t * list, lv_event_cb_t cb, lv_event_code_t filter, void * user_data);
+bool lv_event_remove_dsc(lv_event_list_t * list, lv_event_dsc_t * dsc);
 
 uint32_t lv_event_get_count(lv_event_list_t * list);
 
@@ -216,21 +192,17 @@ void lv_event_stop_processing(lv_event_t * e);
  * Register a new, custom event ID.
  * It can be used the same way as e.g. `LV_EVENT_CLICKED` to send custom events
  * @return      the new event id
- * @example
+ *
+ * Example:
+ * @code
  * uint32_t LV_EVENT_MINE = 0;
  * ...
  * e = lv_event_register_id();
  * ...
  * lv_obj_send_event(obj, LV_EVENT_MINE, &some_data);
+ * @endcode
  */
 uint32_t lv_event_register_id(void);
-
-/**
- * Nested events can be called and one of them might belong to an object that is being deleted.
- * Mark this object's `event_temp_data` deleted to know that its `lv_obj_send_event` should return `LV_RESULT_INVALID`
- * @param target     pointer to an event target which was deleted
- */
-void _lv_event_mark_deleted(void * target);
 
 /**********************
  *      MACROS

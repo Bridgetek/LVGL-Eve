@@ -6,7 +6,9 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "../lv_draw.h"
+#include "../../misc/lv_area_private.h"
+#include "../lv_draw_mask_private.h"
+#include "../lv_draw_private.h"
 #if LV_USE_DRAW_SW
 #if LV_DRAW_SW_COMPLEX
 
@@ -15,7 +17,7 @@
 #include "../../stdlib/lv_mem.h"
 #include "../../stdlib/lv_string.h"
 #include "lv_draw_sw.h"
-#include "lv_draw_sw_mask.h"
+#include "lv_draw_sw_mask_private.h"
 
 /*********************
  *      DEFINES
@@ -46,7 +48,7 @@ void lv_draw_sw_mask_rect(lv_draw_unit_t * draw_unit, const lv_draw_mask_rect_ds
     LV_UNUSED(coords);
 
     lv_area_t draw_area;
-    if(!_lv_area_intersect(&draw_area, &dsc->area, draw_unit->clip_area)) {
+    if(!lv_area_intersect(&draw_area, &dsc->area, draw_unit->clip_area)) {
         return;
     }
 
@@ -116,6 +118,17 @@ void lv_draw_sw_mask_rect(lv_draw_unit_t * draw_unit, const lv_draw_mask_rect_ds
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+#else /*LV_DRAW_SW_COMPLEX*/
+
+void lv_draw_sw_mask_rect(lv_draw_unit_t * draw_unit, const lv_draw_mask_rect_dsc_t * dsc, const lv_area_t * coords)
+{
+    LV_UNUSED(draw_unit);
+    LV_UNUSED(dsc);
+    LV_UNUSED(coords);
+
+    LV_LOG_WARN("LV_DRAW_SW_COMPLEX needs to be enabled");
+}
 
 #endif /*LV_DRAW_SW_COMPLEX*/
 #endif /*LV_USE_DRAW_SW*/

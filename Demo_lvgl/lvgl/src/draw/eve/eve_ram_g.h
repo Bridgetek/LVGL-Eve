@@ -23,8 +23,9 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
+#define RAM_G_SIZE (120 * 1024 * 1024L) /* Defines the size of memory as 120MB */
 
-#define MAX_MEMORY RAM_G_SIZE  /* Defines the size of memory as 1MB */
+#define MAX_MEMORY RAM_G_SIZE  /* Defines the size of memory as 120MB */
 
 #define FONT_BLOCK_START 0      /* Starting index for font blocks in the memory */
 #define MAX_FONT 8              /* Maximum number of font blocks */
@@ -34,7 +35,7 @@ extern "C" {
 
 #define MAX_BLOCKS 256               /* Total number of blocks in the memory.*/
 #define NOT_FOUND_BLOCK 0xFFAAFFAA   /* A constant to represent 'block not found'.*/
-
+#define F16(s) ((int32_t)((s)*65536))
 /**********************
  *      TYPEDEFS
  **********************/

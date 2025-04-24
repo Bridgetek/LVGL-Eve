@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lv_rb.h"
+#include "lv_rb_private.h"
 #include "../stdlib/lv_string.h"
 
 /*********************
@@ -243,7 +243,7 @@ bool lv_rb_drop(lv_rb_t * tree, const void * key)
 {
     LV_ASSERT_NULL(tree);
     if(tree == NULL) {
-        return NULL;
+        return false;
     }
 
     void * data = lv_rb_remove(tree, key);

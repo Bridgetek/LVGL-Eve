@@ -40,12 +40,25 @@
 /*********************
  *      INCLUDES
  *********************/
+#include "../../misc/lv_fs_private.h"
 #include "../../../lvgl.h"
 #if LV_USE_FS_MEMFS
 
 /*********************
  *      DEFINES
  *********************/
+#if LV_FS_MEMFS_LETTER == '\0'
+    #error "LV_FS_MEMFS_LETTER must be set to a valid value"
+#else
+    #if (LV_FS_MEMFS_LETTER < 'A') || (LV_FS_MEMFS_LETTER > 'Z')
+        #if LV_FS_DEFAULT_DRIVE_LETTER != '\0' /*When using default drive letter, strict format (X:) is mandatory*/
+            #error "LV_FS_MEMFS_LETTER must be an upper case ASCII letter"
+        #else /*Lean rules for backward compatibility*/
+            #warning LV_FS_MEMFS_LETTER should be an upper case ASCII letter. \
+            Using a slash symbol as drive letter should be replaced with LV_FS_DEFAULT_DRIVE_LETTER mechanism
+        #endif
+    #endif
+#endif
 
 /**********************
  *      TYPEDEFS
@@ -84,7 +97,6 @@ void lv_fs_memfs_init(void)
      * Register the file system interface in LVGL
      *--------------------------------------------------*/
 
-    /*Add a simple drive to open images*/
     lv_fs_drv_init(&fs_drv);
 
     /*Set up fields...*/
@@ -194,8 +206,8 @@ static lv_fs_res_t fs_seek(lv_fs_drv_t * drv, void * file_p, uint32_t pos, lv_fs
 /**
  * Give the position of the read write pointer
  * @param drv       pointer to a driver where this function belongs
- * @param file_p    pointer to a FILE variable.
- * @param pos_p     pointer to to store the result
+ * @param file_p    pointer to a FILE variable
+ * @param pos_p     pointer to store the result
  * @return LV_FS_RES_OK: no error, the file is read
  *         any error from lv_fs_res_t enum
  */

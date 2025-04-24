@@ -21,7 +21,7 @@ static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t r
 /***********************
  * GLOBAL VARIABLES
  ***********************/
-extern Gpu_Hal_Context_t *s_pHalContext;
+extern EVE_HalContext *s_pHalContext;
 
 /**********************
  *  STATIC VARIABLES
@@ -123,7 +123,7 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
 
 void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc_t * dsc, const lv_area_t * coords)
 {
-#if 0
+#if 1
     if(dsc->opa <= LV_OPA_MIN) return;
     if(dsc->width == 0) return;
     if(dsc->side == LV_BORDER_SIDE_NONE) return;
@@ -192,7 +192,7 @@ void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc
 void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc,
                             const lv_area_t * coords)
 {
-#if 0
+#if 1
     /*Check whether the shadow is visible*/
     if(dsc->width == 0) return;
     if(dsc->opa <= LV_OPA_MIN) return;
@@ -227,7 +227,7 @@ void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_sha
     /*Get clipped draw area which is the real draw area.
      *It is always the same or inside `shadow_area`*/
     lv_area_t draw_area;
-    if (!_lv_area_intersect(&draw_area, &shadow_area, draw_unit->base_unit.clip_area))
+    if (!lv_area_intersect(&draw_area, &shadow_area, draw_unit->base_unit.clip_area))
         return;
     LV_LOG_INFO("core_area: x1: %d. y1: %d, x2: %d, y2: %d\n", core_area.x1, core_area.y1, core_area.x2, core_area.y2);
     LV_LOG_INFO("shadow_area: x1: %d. y1: %d, x2: %d, y2: %d\n", shadow_area.x1, shadow_area.y1, shadow_area.x2, shadow_area.y2);
@@ -253,13 +253,13 @@ void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_sha
     int32_t corner_size = dsc->width  + r_sh;
 
     EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
-    uint32_t opa_steps = 255 / (dsc->width * 2);
-
+    uint32_t opa_steps = 255 / ((draw_area.x2 - draw_area.x1) / (dsc->width));
+    //printf("opa_steps: opa_steps: %d\n", opa_steps);
     for(int steps = 1; steps <= dsc->width; steps += 3) {
 
         EVE_CoDl_colorA(s_pHalContext, opa_steps);
         EVE_draw_rect_simple(draw_area.x1 + steps, draw_area.y1 + steps, draw_area.x2 - steps, draw_area.y2 - steps,
-                             r_sh + dsc->width / 2);
+                             r_sh + dsc->width);
 
     }
 #endif
