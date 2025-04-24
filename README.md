@@ -4,9 +4,9 @@
 This repository is an extension of EveApps, designed to provide LVGL support for reference purposes.  
 
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
-The current LVGL version used is [V9.0.0](https://github.com/lvgl/lvgl/releases/tag/v9.0.0).  
+The current LVGL version used is [V9.2.2](https://github.com/lvgl/lvgl/releases/tag/v9.2.2).  
 
-This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT816 chip.  
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT82X chip.  
 
 Users should have prior experience with LVGL.
   
@@ -19,8 +19,7 @@ The folder "common" of EveApps repo is required.
 1. Download EveApps.
 2. Download LVGL-Eve (this repo) and copy the Demo_lvgl folder to EveApps/
 3. Change lvgl configuration in lv_conf depends on your project, such as enable log, enable demos.
-4. Change HSIZE in Demo_lvgl/eve_lvgl to your LCD's height for display buffer. (optional, need further optimize) 
-5. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo need to be enabled in step 3.
+4. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo need to be enabled in step 3.
 
 ```c
 EVE_CoCmd_dlStart(s_pHalContext);
@@ -49,19 +48,19 @@ cd build
 cmake -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=[EVE graphics] ..
 nmake Demo_lvgl
 
-# [EVE graphics] can be EVE or module name, such as BT817, BT815, VM800B35A_BK ...
+# [EVE graphics] can be EVE or module name, such as BT820 ...
 ```
 
 Example: 
 ```
-$ cmake.exe -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT816 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA ..
+$ cmake.exe -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT820 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WUXGA ..
 $ nmake Demo_lvgl
 ```
 
-Display resolution is set via `EVE_APPS_DISPLAY`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA
+Display resolution is set via `EVE_APPS_DISPLAY`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_DISPLAY=EVE_DISPLAY_WUXGA
 By default, WVGA is set
 
-EVE graphics is set via `EVE_APPS_GRAPHICS`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT815
+EVE graphics is set via `EVE_APPS_GRAPHICS`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT820
 By default, MULTI is set
 
 #### Connections
