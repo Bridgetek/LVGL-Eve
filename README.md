@@ -11,7 +11,7 @@ This repository has been modified to support EVE chips and has been tested with 
 Users should have prior experience with LVGL.
   
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
+This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps-BT82X.   
 The folder "common" of EveApps repo is required. 
 
 ## Build instructions
