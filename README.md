@@ -58,9 +58,11 @@ $ nmake Demo_lvgl
 ```
 
 Display resolution is set via `EVE_APPS_DISPLAY`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_DISPLAY=EVE_DISPLAY_WUXGA
+
 By default, WVGA is set
 
 EVE graphics is set via `EVE_APPS_GRAPHICS`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT820
+
 By default, MULTI is set
 
 #### Connections
