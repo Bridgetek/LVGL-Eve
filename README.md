@@ -6,7 +6,7 @@ This repository is an extension of EveApps, designed to provide LVGL support for
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
 The current LVGL version used is [V9.2.2](https://github.com/lvgl/lvgl/releases/tag/v9.2.2).  
 
-This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT82X chip.  
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with VM820C.  
 
 Users should have prior experience with LVGL.
   
@@ -19,7 +19,7 @@ The folder "common" of EveApps repo is required.
 1. Download EveApps.
 2. Download LVGL-Eve (this repo) and copy the Demo_lvgl folder to EveApps/
 3. Change lvgl configuration in lv_conf depends on your project, such as enable log, enable demos.
-4. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo need to be enabled in step 3.
+4. Add the example or demo which needs to run in Demo_lvgl/eve_lvgl.c. Demo needs to be enabled in step 3.
 
 ```c
 EVE_CoCmd_dlStart(s_pHalContext);
@@ -78,20 +78,6 @@ By default, MULTI is set
 | 5V | 5V | | |
 | GND | GND | | |
 
-### Emulator, FT4222 and MPSSE
-TBD
-
-### FT9XX (FT93X and FT90X)
-TBD
-
-## Demo reference
-### benchmark
-![benchmark](https://github.com/BridgetekChip/LVGL-Eve/assets/142303696/2efc6797-ee26-4ca2-963a-022d0572b175)
-
-### widgets
-![widgets](https://github.com/BridgetekChip/LVGL-Eve/assets/142303696/1fad0a32-8004-4c25-a206-33f0de354de1)
-
-
 ## Limitation
 
 At present, LVGL-Eve supports only fundamental functions, implying that not all necessary LVGL functions are available. For specific information regarding the LVGL examples supported in LVGL-Eve, please consult the documentation located at docs/LVGL_examples_supported_test_v1.0.pdf.
@@ -116,9 +102,3 @@ This repository has taken following as a reference
 
 https://github.com/juanjqh/lvgl_eve_gpu_test-main
 
-## Version
-This version is v1.0.0-alpha
-
-## Release log
-v1.0.0-alpha
- - Initial version
