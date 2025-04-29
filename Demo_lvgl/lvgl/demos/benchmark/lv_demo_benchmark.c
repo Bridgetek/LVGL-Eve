@@ -407,9 +407,7 @@ static scene_dsc_t scenes[] = {
     {.name = "Multiple ARGB images",       .scene_time = 3000, .create_cb = multiple_argb_images_cb},
     {.name = "Rotated ARGB images",        .scene_time = 3000, .create_cb = rotated_argb_image_cb},
     {.name = "Multiple labels",            .scene_time = 3000, .create_cb = multiple_labels_cb},
-#ifndef LV_USE_DRAW_EVE
     {.name = "Screen sized text",          .scene_time = 5000, .create_cb = screen_sized_text_cb},
-#endif
     {.name = "Multiple arcs",              .scene_time = 3000, .create_cb = multiple_arcs_cb},
 
     {.name = "Containers",                 .scene_time = 3000, .create_cb = containers_cb},
@@ -422,8 +420,9 @@ static scene_dsc_t scenes[] = {
 #endif
     {.name = "Containers with scrolling",  .scene_time = 5000, .create_cb = containers_with_scrolling_cb},
 
-    {.name = "Widgets demo",               .scene_time = 20000,           .create_cb = widgets_demo_cb},
-
+#ifndef LV_USE_DRAW_EVE
+    {.name = "Widgets demo",               .scene_time = 40000,           .create_cb = widgets_demo_cb},
+#endif
     {.name = "", .create_cb = NULL}
 };
 
@@ -618,7 +617,7 @@ static void summary_create(void)
     lv_table_set_column_width(table, 1, col_w);
     lv_table_set_column_width(table, 2, col_w);
     lv_table_set_column_width(table, 3, col_w);
-
+#ifndef LV_USE_DRAW_EVE
     uint32_t i;
     int32_t total_avg_fps = 0;
     int32_t total_avg_cpu = 0;
@@ -684,6 +683,7 @@ static void summary_create(void)
                render_time,
                flush_time);
     }
+#endif
 }
 
 /*----------------

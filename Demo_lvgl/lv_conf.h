@@ -48,10 +48,11 @@
 /*==================
  * FONT USAGE
  *===================*/
+#define LV_FONT_MONTSERRAT_12 1
 #define LV_FONT_MONTSERRAT_14 1
-#define LV_FONT_MONTSERRAT_24 0
+#define LV_FONT_MONTSERRAT_24 1
 #define LV_FONT_MONTSERRAT_16 1
-#define LV_FONT_MONTSERRAT_40 0
+#define LV_FONT_MONTSERRAT_40 1
 #define LV_FONT_SIMSUN_16_CJK            0  /*1000 most common CJK radicals*/
 #define LV_FONT_DEFAULT &lv_font_montserrat_16
 
@@ -203,10 +204,16 @@
  * EXAMPLES
  *==================*/
 #define LV_BUILD_EXAMPLES 1
+#define LV_USE_DEMO_MUSIC 0
+#if LV_USE_DEMO_MUSIC
+#define LV_DEMO_MUSIC_SQUARE    0
+#define LV_DEMO_MUSIC_LANDSCAPE 1
+#define LV_DEMO_MUSIC_ROUND     0
+#define LV_DEMO_MUSIC_LARGE     0
+#define LV_DEMO_MUSIC_AUTO_PLAY 0
+#endif
 #define LV_USE_DEMO_WIDGETS 1
-#define LV_USE_DEMO_BENCHMARK 0
+#define LV_USE_DEMO_BENCHMARK 1
 #define LV_USE_DRAW_SW_COMPLEX_GRADIENTS 0
-#define LV_GRADIENT_MAX_STOPS   8
-#define LV_USE_CALENDAR 1
-//#define LV_USE_CALENDAR_CHINESE 1
+
 #endif /*LV_CONF_H*/

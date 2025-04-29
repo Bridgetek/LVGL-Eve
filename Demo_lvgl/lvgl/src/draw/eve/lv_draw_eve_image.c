@@ -26,6 +26,7 @@
 static void convert_RGB565A8_to_ARGB4(const uint8_t * src, uint8_t * dst_argb4444, uint16_t width, uint16_t height);
 static void convert_RGB565A8_to_ARGB1555(const uint8_t * src, uint8_t * dst, uint16_t width, uint16_t height);
 static void convert_ARGB8888_to_ARGB4(const uint8_t * src, uint8_t * dst, uint16_t width, uint16_t height);
+static void remove_stride_padding(const uint8_t* src, uint8_t* dst, uint16_t width, uint16_t height, uint16_t stride, uint32_t color_format);
 
 /**********************
  *  STATIC VARIABLES
@@ -65,12 +66,12 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
     const lv_image_dsc_t *img_dsc = draw_dsc->src;
     const uint8_t *img_src = img_dsc->data;
 
-    int32_t img_w = img_dsc->header.w;
-    int32_t img_h = img_dsc->header.h;
-    int32_t img_stride = img_dsc->header.stride;
-    int32_t img_size = img_dsc->data_size;
-    int32_t clip_w = lv_area_get_width(draw_unit->base_unit.clip_area);
-    int32_t clip_h = lv_area_get_height(draw_unit->base_unit.clip_area);
+    uint16_t img_w = img_dsc->header.w;
+    uint16_t img_h = img_dsc->header.h;
+    uint16_t img_stride = img_dsc->header.stride;
+    uint32_t img_size = img_dsc->data_size;
+    uint32_t clip_w = lv_area_get_width(draw_unit->base_unit.clip_area);
+    uint32_t clip_h = lv_area_get_height(draw_unit->base_unit.clip_area);
     uint16_t color_f = img_dsc->header.cf;
     //uint16_t img_stride = 0;
     //int32_t img_size = img_w * img_h * LV_COLOR_DEPTH / 8;
@@ -92,6 +93,7 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
         LV_ATTRIBUTE_MEM_ALIGN uint8_t *temp_buff = lv_malloc_zeroed(img_size);
 
         uint8_t *buffer_converted = NULL;
+        uint16_t row_bytes;
 
         switch (color_f)
         {
@@ -100,7 +102,15 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
             //img_size = img_size / 2;
             break;
         case LV_COLOR_FORMAT_RGB565:
-            buffer_converted = (uint8_t *)img_src;
+            row_bytes = img_w * 2;
+            if (img_stride != row_bytes) {
+                remove_stride_padding(img_src, temp_buff, img_w, img_h, img_stride, LV_COLOR_FORMAT_RGB565);
+                buffer_converted = temp_buff;
+                img_size = row_bytes * img_h;
+            }
+            else {
+                buffer_converted = (uint8_t*)img_src;
+            }
             break;
         case LV_COLOR_FORMAT_RGB565A8:
             // convert_RGB565A8_to_ARGB4444(src_buf, temp_buff, img_w, img_h);
@@ -109,7 +119,15 @@ void lv_draw_eve_image(lv_draw_eve_unit_t *draw_unit, const lv_draw_image_dsc_t 
             break;
         case LV_COLOR_FORMAT_ARGB8888:
 #if 1
-            buffer_converted = (uint8_t*)img_src;
+            row_bytes = img_w * 4;
+            if (img_stride != row_bytes) {
+                remove_stride_padding(img_src, temp_buff, img_w, img_h, img_stride, LV_COLOR_FORMAT_ARGB8888);
+                buffer_converted = temp_buff;
+                img_size = row_bytes * img_h;
+            }
+            else {
+                buffer_converted = (uint8_t*)img_src;
+            }
             //img_size = img_size * 2;
 #else
             convert_ARGB8888_to_ARGB4(img_src, temp_buff, img_w, img_h);
@@ -302,5 +320,29 @@ static void convert_ARGB8888_to_ARGB4(const uint8_t * src, uint8_t * dst, uint16
         dst[2 * i + 1] = (argb4444 >> 8) & 0xFF;
     }
 }
+
+static void remove_stride_padding(const uint8_t* src, uint8_t* dst, uint16_t width, uint16_t height, uint16_t stride, uint32_t color_format)
+{
+    uint8_t bytes_per_pixel;
+
+    switch (color_format) {
+    case LV_COLOR_FORMAT_ARGB8888:
+        bytes_per_pixel = 4;
+        break;
+    case LV_COLOR_FORMAT_RGB565:
+        bytes_per_pixel = 2;
+        break;
+    default:
+        // Unsupported format for this routine
+        return;
+    }
+
+    uint16_t row_bytes = width * bytes_per_pixel;
+
+    for (int y = 0; y < height; y++) {
+        memcpy(dst + y * row_bytes, src + y * stride, row_bytes);
+    }
+}
+
 
 #endif /*LV_USE_DRAW_EVE*/

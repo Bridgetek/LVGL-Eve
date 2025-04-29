@@ -96,8 +96,9 @@ int main(int argc, char *argv[])
 	EVE_CoCmd_dlStart(s_pHalContext);
 	EVE_CoDl_vertexFormat(s_pHalContext, 0);
 	//lv_example_get_started_1();
-	lv_demo_widgets();
-	//lv_demo_benchmark();
+	//lv_demo_widgets();
+	lv_demo_benchmark();
+	//lv_demo_music();
 
 
 	while (1)
