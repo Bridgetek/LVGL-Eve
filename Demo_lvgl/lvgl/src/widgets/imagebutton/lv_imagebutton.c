@@ -240,7 +240,9 @@ static void draw_main(lv_event_t * e)
             lv_area_t clip_area_ori = layer->_clip_area;
             layer->_clip_area = clip_area_center;
             img_dsc.src = src_info->img_src;
+#ifndef LV_USE_DRAW_EVE  // tile is not supported in EVE GPU
             img_dsc.tile = 1;
+#endif
             lv_draw_image(layer, &img_dsc, &coords_part);
             layer->_clip_area = clip_area_ori;
         }

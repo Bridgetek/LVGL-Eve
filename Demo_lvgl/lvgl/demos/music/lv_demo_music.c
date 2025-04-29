@@ -48,10 +48,12 @@ static const char * title_list[] = {
     "Go Deeper",
     "Find You There",
     "Until the End",
+#ifndef LV_USE_DRAW_EVE
     "Unknown",
     "Unknown",
     "Unknown",
     "Unknown",
+#endif
 };
 
 static const char * artist_list[] = {
@@ -66,10 +68,12 @@ static const char * artist_list[] = {
     "Unknown artist",
     "Unknown artist",
     "Unknown artist",
+#ifndef LV_USE_DRAW_EVE
     "Unknown artist",
     "Unknown artist",
     "Unknown artist",
     "Unknown artist",
+#endif
 };
 
 static const char * genre_list[] = {
@@ -83,10 +87,12 @@ static const char * genre_list[] = {
     "Metal - 2015",
     "Metal - 2015",
     "Metal - 2015",
+#ifndef LV_USE_DRAW_EVE
     "Metal - 2015",
     "Metal - 2015",
     "Metal - 2015",
     "Metal - 2015",
+#endif
 };
 
 static const uint32_t time_list[] = {
@@ -100,10 +106,12 @@ static const uint32_t time_list[] = {
     3 * 60 + 31,
     2 * 60 + 20,
     2 * 60 + 19,
+#ifndef LV_USE_DRAW_EVE
     2 * 60 + 20,
     2 * 60 + 19,
     2 * 60 + 20,
     2 * 60 + 19,
+#endif
 };
 
 /**********************
