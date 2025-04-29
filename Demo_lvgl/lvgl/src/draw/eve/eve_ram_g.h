@@ -27,6 +27,9 @@ extern "C" {
 
 #define MAX_MEMORY RAM_G_SIZE  /* Defines the size of memory as 120MB */
 
+#define MAX_CHUNK_SIZE      (64 * 1024L)        /* 64K chunk size */
+#define MAX_TOTALBUFF_SIZE  (1920 * 1200 * 4L)  /* ARGB8 1920x1200 image resolution */
+
 #define FONT_BLOCK_START 0      /* Starting index for font blocks in the memory */
 #define MAX_FONT 8              /* Maximum number of font blocks */
 

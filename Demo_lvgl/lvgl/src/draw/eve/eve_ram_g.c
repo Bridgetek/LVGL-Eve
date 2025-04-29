@@ -157,8 +157,8 @@ uint32_t find_ramg_font(const uint8_t * fontSource)
 
 void load_buf_to_ramg(uint32_t start_addr_ramg, uint8_t *buffer, uint32_t img_size)
 {
-    uint32_t chunksize = 64 * 1024;
-    uint32_t totalbufflen = 64 * 1024;
+    uint32_t chunksize = MAX_CHUNK_SIZE;
+    uint32_t totalbufflen = MAX_TOTALBUFF_SIZE;
     uint32_t currreadlen = 0;
     uint32_t wrptr = start_addr_ramg;
 
