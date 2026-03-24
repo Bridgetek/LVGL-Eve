@@ -6,7 +6,7 @@ This repository is an extension of EveApps, designed to provide LVGL support for
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
 The current LVGL version used is [V9.0.0](https://github.com/lvgl/lvgl/releases/tag/v9.0.0).  
 
-This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT883 chip (IDM2040-43A board).  
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT883 chip (IDM2040-43A board can be got from https://brtchip.com/product/idm2040-43a/).  
 
 Users should have prior experience with LVGL.
   
@@ -47,6 +47,10 @@ mkdir build
 cd build
 cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=MM2040EV -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA  -DCMAKE_BUILD_TYPE=Debug ..
 nmake Demo_lvgl
+
+## Demo reference
+### benchmark
+<img width="3729" height="2246" alt="image" src="https://github.com/user-attachments/assets/302cbfce-4745-4962-84ad-a5d9e5d85684" />
 
 ## Limitation
 
