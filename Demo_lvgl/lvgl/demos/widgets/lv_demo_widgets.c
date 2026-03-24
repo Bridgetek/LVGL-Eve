@@ -333,7 +333,7 @@ static void profile_create(lv_obj_t * parent)
 
     lv_obj_t * birthdate = lv_textarea_create(panel2);
     lv_textarea_set_one_line(birthdate, true);
-    lv_obj_add_event_cb(birthdate, birthday_event_cb, LV_EVENT_ALL, NULL);
+    //lv_obj_add_event_cb(birthdate, birthday_event_cb, LV_EVENT_ALL, NULL);
 
     /*Create the third panel*/
     lv_obj_t * panel3 = lv_obj_create(parent);

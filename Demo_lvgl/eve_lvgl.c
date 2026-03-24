@@ -37,18 +37,22 @@
 static EVE_HalContext s_halContext;
 EVE_HalContext* s_pHalContext;
 
-#define HSIZE 800
-
+#define HSIZE 480
+#define VSIZE 272
 void eve_display_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* color_p)
 {
-    EVE_CoCmd_dl(s_pHalContext, DISPLAY());
-    EVE_CoCmd_swap(s_pHalContext);
-    EVE_Cmd_waitFlush(s_pHalContext);
+	if (lv_display_flush_is_last(disp))
+	{
+		EVE_CoCmd_dl(s_pHalContext, DISPLAY());
+		EVE_CoCmd_swap(s_pHalContext);
+		EVE_Cmd_waitFlush(s_pHalContext);
+		uint32_t dl_buff = EVE_Hal_rd32(s_pHalContext, REG_CMD_DL);
+		printf("display list %d \n", dl_buff);
 
-    // restart a new display list 
-    EVE_CoCmd_dlStart(s_pHalContext);
-    EVE_CoDl_vertexFormat(s_pHalContext, 0);
-
+		// restart a new display list
+		EVE_CoCmd_dlStart(s_pHalContext);
+		EVE_CoDl_vertexFormat(s_pHalContext, 0);
+	}
     lv_display_flush_ready(disp);
 }
 
@@ -78,13 +82,13 @@ static void eve_touch_read(lv_indev_t* drv, lv_indev_data_t* data)
 void lv_setup(void)
 {
     lv_display_t *display;
-    static uint8_t buf1[HSIZE * 160]; // TODO: change with LCD size, Declare a buffer for 1/10 screen size?
+	lv_color16_t buf1;
+#define DRAW_BUFFER_SIZE (HSIZE * VSIZE * LV_COLOR_DEPTH / 8)
 
     printf("height %d, width %d\n", s_pHalContext->Height, s_pHalContext->Width);
     display = lv_display_create(s_pHalContext->Width, s_pHalContext->Height);
     lv_display_set_flush_cb(display, eve_display_flush);
-    lv_display_set_buffers(display, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);
-    lv_display_set_render_mode(display, LV_DISPLAY_RENDER_MODE_FULL); /*Force to use LV_DISPLAY_RENDER_MODE_FULL*/
+	lv_display_set_buffers(display, &buf1, NULL, DRAW_BUFFER_SIZE, LV_DISPLAY_RENDER_MODE_FULL);
 
     /*Register a touchpad input device*/
     lv_indev_t *indev_touchpad;
