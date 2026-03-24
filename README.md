@@ -73,8 +73,10 @@ This repository has taken following as a reference
 https://github.com/juanjqh/lvgl_eve_gpu_test-main
 
 ## Version
-This version is v1.0.0-alpha
+This version is changed for IDM2040-43A demo based on v1.0.0-alpha
 
 ## Release log
 v1.0.0-alpha
  - Initial version
+ - Changed for IDM2040-43A demo
+
