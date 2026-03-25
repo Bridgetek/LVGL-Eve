@@ -11,8 +11,8 @@
 #if LV_USE_DRAW_EVE
 #include "lv_draw_eve.h"
 #include "eve_ram_g.h"
-#include "src/font/lv_font_fmt_txt.h"
-#include "src/misc/lv_utils.h"
+#include "../../font/lv_font_fmt_txt.h"
+#include "../../misc/lv_utils.h"
 #include "stdlib.h"
 
 /*********************

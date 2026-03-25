@@ -6,21 +6,43 @@ This repository is an extension of EveApps, designed to provide LVGL support for
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
 The current LVGL version used is [V9.0.0](https://github.com/lvgl/lvgl/releases/tag/v9.0.0).  
 
-This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on a Raspberry Pico RP2040 with a BT816 chip.  
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on [IDM2040-7A](https://brtchip.com/product/idm2040-7a/) which using Raspberry Pico RP2040 and EVE BT817 with 800x480 LCD.  
 
 Users should have prior experience with LVGL.
   
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
-The folder "common" of EveApps repo is required. 
+This repository cannot function independently; Bridgetek’s [EveApps](https://github.com/Bridgetek/EveApps) is included as a submodule.
 
 ## Build instructions
 
-1. Download EveApps.
-2. Download LVGL-Eve (this repo) and copy the Demo_lvgl folder to EveApps/
-3. Change lvgl configuration in lv_conf depends on your project, such as enable log, enable demos.
-4. Change HSIZE in Demo_lvgl/eve_lvgl to your LCD's height for display buffer. (optional, need further optimize) 
-5. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo need to be enabled in step 3.
+1. Download LVGL-Eve (this repo) 
+2. Update submodule
+
+```sh
+git submodule update --init --recursive
+```
+
+3. add Demo_lvgl folder to External's top level CMakeLists.txt
+4. Modify the lvgl configuration in Demo_lvgl/lv_conf.h according to your project's requirements, such as enabling logs, demos, etc.
+
+```c
+/*Enable the log module*/
+#define LV_USE_LOG 1
+
+/*Show some widget. It might be required to increase `LV_MEM_SIZE` */
+#define LV_USE_DEMO_WIDGETS 1
+```
+
+5. Adjust the display buffer in Demo_lvgl/eve_lvgl.c to match your project. It's recommended to use a screen-sized buffer if there is sufficient RAM available.
+
+```c
+void lv_setup(void)
+{
+    lv_display_t *display;
+    static uint8_t buf1[HSIZE * 160];
+```
+
+6. Include the necessary example or demo that needs to run in Demo_lvgl/eve_lvgl.c. Ensure that the demo is enabled in step 4.
 
 ```c
 EVE_CoCmd_dlStart(s_pHalContext);
@@ -33,7 +55,7 @@ lv_demo_widgets(); //enable the widget demo
 
 Requires the Pico toolchain https://github.com/ndabas/pico-setup-windows to be installed.
 
-Pico-SDK version 1.3.0 is required
+Pico-SDK version 2.2.0 is required
 
 
 The following steps will build for Raspberry Pi Pico.
@@ -43,7 +65,7 @@ The following steps will build for Raspberry Pi Pico.
 ```sh
 set PICO_SDK_PATH=[path to pico-sdk]
 set PICO_TOOLCHAIN_PATH=[path to GNU Arm Embedded Toolchain\\10 2020-q4-major\\bin]
-cd EveApps
+cd external
 mkdir build
 cd build
 cmake -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=[EVE graphics] ..
@@ -54,17 +76,21 @@ nmake Demo_lvgl
 
 Example: 
 ```
-$ cmake.exe -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT816 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA ..
+$ cmake.exe -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT817 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA ..
 $ nmake Demo_lvgl
 ```
 
-Display resolution is set via `EVE_APPS_DISPLAY`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA
+>[!NOTE]
+>Display resolution is set via `EVE_APPS_DISPLAY`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_DISPLAY=EVE_DISPLAY_WXGA
 By default, WVGA is set
-
-EVE graphics is set via `EVE_APPS_GRAPHICS`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT815
+>
+>EVE graphics is set via `EVE_APPS_GRAPHICS`, example: cmake -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT817
 By default, MULTI is set
 
-#### Connections
+The uf2 file can be found in 'LVGL-Eve\external\build\Demo_lvgl_build\'
+
+<details>
+<summary>Connections reference</summary>
 
 | RP2040 | EVE | UART | SD |
 | --- | --- | --- | --- |
@@ -78,8 +104,21 @@ By default, MULTI is set
 | GP7 (GPIO) | PWD | | |
 | 5V | 5V | | |
 | GND | GND | | |
+</details>
 
-### Emulator, FT4222 and MPSSE
+### Emulator
+1, Open Demo_lvgl/Msvc_Emulator/DemoLvgl_Emulator.sln
+
+2, Change configurations as per your project
+
+>[!NOTE]
+>[EVE graphics] can be EVE or module name, such as BT817, BT815, VM800B35A_BK...
+>
+>[EVE display] EVE_DISPLAY_WVGA, EVE_DISPLAY_WQVGA...
+
+3, Build (Ctrl + B) and Run (F5)
+
+### FT4222 and MPSSE
 TBD
 
 ### FT9XX (FT93X and FT90X)

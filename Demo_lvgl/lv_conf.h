@@ -94,7 +94,7 @@
 /*Align the start address of draw_buf addresses to this bytes*/
 #define LV_DRAW_BUF_ALIGN                       4
 
-#define LV_USE_DRAW_SW 1
+#define LV_USE_DRAW_SW 0
 #if LV_USE_DRAW_SW == 1
     /* Set the number of draw unit.
      * > 1 requires an operating system enabled in `LV_USE_OS`

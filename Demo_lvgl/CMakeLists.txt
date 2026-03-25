@@ -4,13 +4,13 @@ set_directory_properties(PROPERTIES FOLDER Demo_lvgl)
 
 IF((IS_PLATFORM_FT9XX) OR (IS_PLATFORM_RP2040))
   LINK_LIBRARIES(fatfs)
-  INCLUDE_DIRECTORIES("../common/application/fatfs/source")
+  INCLUDE_DIRECTORIES("../external/common/application/fatfs/source")
 ENDIF()
 
-INCLUDE_DIRECTORIES("../common/application")  
+INCLUDE_DIRECTORIES("../external/common/application")  
 
-FILE(GLOB SRCS ../common/application/*.c *.c)
-FILE(GLOB HDRS ../common/application/*.h *.h)
+FILE(GLOB SRCS ../external/common/application/*.c *.c)
+FILE(GLOB HDRS ../external/common/application/*.h *.h)
 
 get_filename_component(ProjectId ${CMAKE_CURRENT_LIST_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})

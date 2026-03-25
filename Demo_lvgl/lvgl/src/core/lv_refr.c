@@ -25,6 +25,11 @@
 
 /*Display being refreshed*/
 #define disp_refr LV_GLOBAL_DEFAULT()->disp_refresh
+#ifdef LV_USE_DRAW_EVE
+#ifndef LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE
+#define LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE (24 * 1024) /*[bytes]*/
+#endif
+#endif
 
 /**********************
  *      TYPEDEFS
