@@ -23,6 +23,9 @@ git submodule update --init --recursive
 ```
 
 3. add Demo_lvgl folder to External's top level CMakeLists.txt
+
+<img width="343" height="143" alt="image" src="https://github.com/user-attachments/assets/d8cc6d97-fd1e-4a86-8528-155080bc86dd" />
+
 4. Modify the lvgl configuration in Demo_lvgl/lv_conf.h according to your project's requirements, such as enabling logs, demos, etc.
 
 ```c
