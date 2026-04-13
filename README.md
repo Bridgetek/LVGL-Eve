@@ -11,8 +11,7 @@ This repository has been modified to support EVE chips and has been tested with 
 Users should have prior experience with LVGL.
 
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
-The folder "common" of EveApps repo is required. 
+This repository now includes the required components via a Git submodule linked to the EveApps repository. The common folder from EveApps is therefore already integrated and available. 
 
 ## Build instructions
 
