@@ -54,9 +54,6 @@ nmake Demo_lvgl
 <img width="2764" height="2673" alt="image" src="https://github.com/user-attachments/assets/d0e85630-bc2a-4585-a481-0dddb100f72a" />
 
 ## Limitation
-
-Currently, LVGL-Eve provides only basic functionality, meaning that not all LVGL features are supported. For details on which LVGL examples are compatible with LVGL-Eve, please refer to the documentation at docs/LVGL_examples_supported_test_v1.0.pdf.
-
 Unsupported cases:
 
 1.	Rotation is solely applicable to images and does not extend to other objects like buttons or images with an outline.
