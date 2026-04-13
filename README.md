@@ -50,8 +50,8 @@ nmake Demo_lvgl
 ```
 ## Demo reference
 ### Widgets
-
-### benchmark
+<img width="2889" height="2863" alt="image" src="https://github.com/user-attachments/assets/a154e89f-0169-41e9-b103-f04dfeb15604" />
+<img width="2764" height="2673" alt="image" src="https://github.com/user-attachments/assets/d0e85630-bc2a-4585-a481-0dddb100f72a" />
 
 ## Limitation
 
