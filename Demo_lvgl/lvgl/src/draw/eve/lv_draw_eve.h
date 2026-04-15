@@ -76,7 +76,7 @@ extern void lv_draw_eve_border(lv_draw_eve_unit_t *draw_unit, const lv_draw_bord
  * @param dsc           the draw descriptor
  * @param coords        the coordinates of the rectangle for which the box shadow should be drawn
  */
-//extern void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc, const lv_area_t *coords);
+extern void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc, const lv_area_t *coords);
 
 /**
  * Draw an image with EVE render. It handles image decoding, tiling, transformations, and recoloring.

@@ -33,8 +33,7 @@ lv_result_t eve_decoder_info(lv_image_decoder_t * decoder, const void * src, lv_
  * @param dsc       image descriptor
  * @return          LV_RESULT_OK: no error; LV_RESULT_INVALID: can't open the image
  */
-lv_result_t eve_decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t * dsc,
-                             const lv_image_decoder_args_t * args);
+lv_result_t eve_decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t * dsc);
 
 /**
  * Close PNG image and free data

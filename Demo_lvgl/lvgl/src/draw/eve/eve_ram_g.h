@@ -96,7 +96,7 @@ extern void set_size_ramg_block(uint8_t Id, uint32_t sz);
 
 extern bool update_ramg_block(uint8_t id, uint8_t * src, uint32_t addr, uint32_t sz);
 
-extern void load_buf_to_ramg(uint32_t start_addr_ramg, uint8_t *buffer, uint32_t img_size);
+extern void load_buf_to_ramg(uint32_t start_addr_ramg,  const uint8_t *buffer, uint32_t img_size);
 
 
 #endif/*LV_USE_DRAW_EVE*/

@@ -48,8 +48,7 @@ lv_result_t eve_decoder_info(lv_image_decoder_t * decoder, const void * src, lv_
     return res;
 }
 
-lv_result_t eve_decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t * dsc,
-                             const lv_image_decoder_args_t * args)
+lv_result_t eve_decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t * dsc)
 {
     (void) decoder; /*Unused*/
 

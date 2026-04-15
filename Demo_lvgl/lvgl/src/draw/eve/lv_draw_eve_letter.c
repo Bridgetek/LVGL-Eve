@@ -68,7 +68,6 @@ extern Gpu_Hal_Context_t *s_pHalContext;
 #define get_nibble_1(w) ((uint8_t) ((w) >> 4))
 #define get_nibble_2(w) ((uint8_t) ((w) & 0xf))
 
-
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
