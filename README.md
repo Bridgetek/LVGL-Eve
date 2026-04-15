@@ -6,13 +6,12 @@ This repository is an extension of EveApps, designed to provide LVGL support for
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
 The current LVGL version used is [V9.0.0](https://github.com/lvgl/lvgl/releases/tag/v9.0.0).  
 
-This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo," "benchmark demo," and "music demo" on IDM2040-21R module which can be got from https://brtchip.com/product/idm2040-21R/. The IDM2040-21R is a 2.1-inch circular rotary dial display module based on our FT800 Embedded Video Engine with on-board RP2040 MCU. Create intuitive full colour user interfaces  on the 480 x 480 graphical display, with user interaction via the capacitive touch screen and rotary encoder dial with push button. By default, the FT800Q only supports resistive touch. In this demo, capacitive touch functionality is enabled by loading a specialized touch firmware (c_TouchDataU8https://github.com/Bridgetek/LVGL-Eve/blob/8d0bf18f24b1eed39bff6d027d2c569320de8d06/Demo_lvgl/eve_lvgl.c#L48) into RAM_CMD after reboot.
+This repository has been modified to support EVE chips and has been tested with various examples, including the "widget demo" and "benchmark demo"  on IDM2040-21R module which can be got from https://brtchip.com/product/idm2040-21R/. The IDM2040-21R is a 2.1-inch circular rotary dial display module based on our FT800 Embedded Video Engine with on-board RP2040 MCU. Create intuitive full colour user interfaces  on the 480 x 480 graphical display, with user interaction via the capacitive touch screen and rotary encoder dial with push button. By default, the FT800Q only supports resistive touch. In this demo, capacitive touch functionality is enabled by loading a specialized touch firmware (c_TouchDataU8https://github.com/Bridgetek/LVGL-Eve/blob/8d0bf18f24b1eed39bff6d027d2c569320de8d06/Demo_lvgl/eve_lvgl.c#L48) into RAM_CMD after reboot.
 
 Users should have prior experience with LVGL.
 
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
-The folder "common" of EveApps repo is required. 
+This repository now includes the required components via a Git submodule linked to the EveApps repository. The common folder from EveApps is therefore already integrated and available. 
 
 ## Build instructions
 
@@ -32,7 +31,7 @@ lv_demo_widgets(); //enable the widget demo
 
 Requires the Pico toolchain (https://github.com/raspberrypi/pico-sdk) to be installed.
 
-Pico-SDK version 1.5.1 is required
+Pico-SDK version 2.2.0 is required
 
 
 The following steps will build for Raspberry Pi Pico.
