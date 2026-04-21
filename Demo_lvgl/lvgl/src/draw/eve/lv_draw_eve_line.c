@@ -52,10 +52,10 @@ void lv_draw_eve_line(lv_draw_eve_unit_t * draw_unit, const lv_draw_line_dsc_t *
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
     LV_LOG_INFO("line: x1: %d, y1: %d, x2: %d, y2: %d, width %d\n", dsc->p1.x, dsc->p1.y, dsc->p2.x, dsc->p2.y, dsc->width);
 
+	//EVE_CoDl_saveContext(s_pHalContext);
     uint32_t line_w = dsc->width * 8;
     EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
-    EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1,
-        draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(draw_unit->base_unit.clip_area), lv_area_get_height(draw_unit->base_unit.clip_area));
     EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
     EVE_CoDl_colorA(s_pHalContext, dsc->opa);
 
@@ -82,7 +82,7 @@ void lv_draw_eve_line(lv_draw_eve_unit_t * draw_unit, const lv_draw_line_dsc_t *
         EVE_CoDl_vertex2f(s_pHalContext, dsc->p2.x, dsc->p2.y);
         EVE_CoDl_end(s_pHalContext);
     }
-
+	//EVE_CoDl_restoreContext(s_pHalContext);
 }
 
 #endif /*LV_USE_DRAW_EVE*/

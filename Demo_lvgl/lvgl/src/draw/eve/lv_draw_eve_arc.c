@@ -72,7 +72,7 @@ static int32_t chord_length(int16_t radius, int16_t angleDegrees)
     angleDegrees %= 360;
     if(angleDegrees < 0) angleDegrees += 360;
     int32_t sin_value = lv_trigo_sin(angleDegrees / 2);
-    int64_t chordLength = 2 * radius * sin_value / 32768.0;
+    int64_t chordLength = (int64_t)(2 * radius * sin_value / 32768.0);
     return (int32_t)chordLength ;
 }
 
@@ -286,8 +286,7 @@ static void draw_eve_arc(lv_draw_eve_unit_t * draw_unit, const lv_draw_arc_dsc_t
 
     // make a scissor area to limit the affects of arc line
     EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
-    EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1,
-        draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(draw_unit->base_unit.clip_area), lv_area_get_height(draw_unit->base_unit.clip_area));
 
     EVE_CoDl_colorRgb(s_pHalContext, color.red, color.green, color.blue);
     EVE_CoDl_colorA(s_pHalContext, opa);

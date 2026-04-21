@@ -349,7 +349,6 @@
     <ClCompile Include="..\lvgl\src\draw\eve\lv_draw_eve_line.c" />
     <ClCompile Include="..\lvgl\src\draw\eve\lv_draw_eve_simple.c" />
     <ClCompile Include="..\lvgl\src\draw\eve\lv_draw_eve_triangle.c" />
-    <ClCompile Include="..\lvgl\src\draw\eve\lv_eve_image_decoder.c" />
     <ClCompile Include="..\lvgl\src\draw\lv_draw.c" />
     <ClCompile Include="..\lvgl\src\draw\lv_draw_arc.c" />
     <ClCompile Include="..\lvgl\src\draw\lv_draw_buf.c" />
@@ -635,7 +634,6 @@
     <ClInclude Include="..\lvgl\src\draw\eve\eve_ram_g.h" />
     <ClInclude Include="..\lvgl\src\draw\eve\lv_draw_eve.h" />
     <ClInclude Include="..\lvgl\src\draw\eve\lv_draw_eve_simple.h" />
-    <ClInclude Include="..\lvgl\src\draw\eve\lv_eve_image_decoder.h" />
     <ClInclude Include="..\lvgl\src\draw\lv_draw.h" />
     <ClInclude Include="..\lvgl\src\draw\lv_draw_arc.h" />
     <ClInclude Include="..\lvgl\src\draw\lv_draw_buf.h" />

@@ -101,9 +101,9 @@ void lv_draw_eve_triangle(lv_draw_eve_unit_t *draw_unit, const lv_draw_triangle_
     if (p[0].y > p[1].y)
         lv_point_swap(&p[0], &p[1]);
 
+	EVE_CoDl_saveContext(s_pHalContext);
     EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
-    EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1,
-        draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(draw_unit->base_unit.clip_area), lv_area_get_height(draw_unit->base_unit.clip_area));
 
     EVE_CoDl_colorRgb(s_pHalContext, dsc->bg_color.red, dsc->bg_color.green, dsc->bg_color.blue);
     EVE_CoDl_colorA(s_pHalContext, dsc->bg_opa);

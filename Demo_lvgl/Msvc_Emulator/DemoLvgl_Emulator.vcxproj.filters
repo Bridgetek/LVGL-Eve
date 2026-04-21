@@ -563,9 +563,6 @@
     <ClInclude Include="..\lvgl\src\draw\eve\lv_draw_eve_simple.h">
       <Filter>lvgl\src\draw\eve</Filter>
     </ClInclude>
-    <ClInclude Include="..\lvgl\src\draw\eve\lv_eve_image_decoder.h">
-      <Filter>lvgl\src\draw\eve</Filter>
-    </ClInclude>
     <ClInclude Include="..\lvgl\src\drivers\lv_drivers.h">
       <Filter>lvgl\src\drivers</Filter>
     </ClInclude>
@@ -1352,9 +1349,6 @@
       <Filter>lvgl\src\draw\eve</Filter>
     </ClCompile>
     <ClCompile Include="..\lvgl\src\draw\eve\lv_draw_eve_triangle.c">
-      <Filter>lvgl\src\draw\eve</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lvgl\src\draw\eve\lv_eve_image_decoder.c">
       <Filter>lvgl\src\draw\eve</Filter>
     </ClCompile>
     <ClCompile Include="..\lvgl\src\drivers\windows\lv_windows_context.c">

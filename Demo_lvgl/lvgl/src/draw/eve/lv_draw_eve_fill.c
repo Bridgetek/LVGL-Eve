@@ -15,8 +15,7 @@
  **********************/
 
 
-static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t radius, int32_t border, uint32_t color,
-                                   uint8_t col_A);
+static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t radius, int32_t border, uint32_t color);
 
 /***********************
  * GLOBAL VARIABLES
@@ -43,7 +42,7 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
     LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", coords->x1, coords->y1, coords->x2, coords->y2);
 
-    LV_LOG_INFO("color: r %x, g %x, b %x, a %d\n", dsc->color.red, dsc->color.green, dsc->color.blue, dsc->opa);
+    LV_LOG_INFO("color: r %x, g %x, b %x, a %d, r %d\n", dsc->color.red, dsc->color.green, dsc->color.blue, dsc->opa, dsc->radius);
     if (dsc->grad.stops_count > 0)
         LV_LOG_INFO("dir %d, Stop %d, color: r %x, g %x, b %x, a %d\n", dsc->grad.dir, dsc->grad.stops_count, dsc->grad.stops[0].color.red, dsc->grad.stops[0].color.green, dsc->grad.stops[0].color.blue, dsc->grad.stops[0].opa);
     if (dsc->grad.stops_count > 1)
@@ -51,8 +50,8 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
 
     EVE_CoDl_saveContext(s_pHalContext);
 
-    if ((draw_unit->base_unit.clip_area->x1 == 0) && (draw_unit->base_unit.clip_area->x2 == (s_pHalContext->Width - 1))
-        && (draw_unit->base_unit.clip_area->y1 == 0) && (draw_unit->base_unit.clip_area->y2 == (s_pHalContext->Height - 1)))
+    if ((coords->x1 == 0) && (coords->x2 == (s_pHalContext->Width - 1))
+        && (coords->y1 == 0) && (coords->y2 == (s_pHalContext->Height - 1)))
     {
         LV_LOG_INFO("fill backgroud\n");
         EVE_CoDl_clearColorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
@@ -63,8 +62,8 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
         if (dsc->grad.dir != LV_GRAD_DIR_NONE)
             margin = 2;
         EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1 - margin, draw_unit->base_unit.clip_area->y1 - margin);
-        EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1 + 2 * margin,
-            draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1 + 2 * margin);
+        EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(draw_unit->base_unit.clip_area) + 2 * margin,
+            lv_area_get_height(draw_unit->base_unit.clip_area) + 2 * margin);
 
         if (dsc->grad.dir != LV_GRAD_DIR_NONE)
         {
@@ -75,14 +74,17 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
         EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
         EVE_CoDl_colorA(s_pHalContext, dsc->opa);
 
-        if (bg_w == bg_h && rad == LV_RADIUS_CIRCLE)
-        {
-            EVE_draw_circle_simple(coords->x1 + (bg_w / 2), coords->y1 + (bg_h / 2), real_radius);
-        }
-        else
-        {
-            EVE_draw_rect_simple(coords->x1, coords->y1, coords->x2, coords->y2, real_radius);
-        }
+		if (dsc->opa > LV_OPA_MIN)
+		{
+			if (bg_w == bg_h && rad == LV_RADIUS_CIRCLE)
+			{
+				EVE_draw_circle_simple(coords->x1 + (bg_w / 2), coords->y1 + (bg_h / 2), real_radius);
+			}
+			else
+			{
+				EVE_draw_rect_simple(coords->x1, coords->y1, coords->x2, coords->y2, real_radius);
+			}
+		}
 
         if (dsc->grad.dir != LV_GRAD_DIR_NONE)
         {
@@ -105,13 +107,8 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
                     draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y1, rgb2);
             }
         }
-
-        EVE_CoDl_restoreContext(s_pHalContext);
-
-        // Reset stencil
-        EVE_CoDl_stencilFunc(s_pHalContext, ALWAYS, 0, 255);
-        EVE_CoDl_stencilOp(s_pHalContext, KEEP, KEEP);
     }
+    EVE_CoDl_restoreContext(s_pHalContext);
 }
 
 
@@ -119,11 +116,8 @@ void lv_draw_eve_fill(lv_draw_eve_unit_t * draw_unit, const lv_draw_fill_dsc_t *
  *   STATIC FUNCTIONS
  **********************/
 
-
-
 void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc_t * dsc, const lv_area_t * coords)
 {
-#if 0
     if(dsc->opa <= LV_OPA_MIN) return;
     if(dsc->width == 0) return;
     if(dsc->side == LV_BORDER_SIDE_NONE) return;
@@ -131,31 +125,59 @@ void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc
     LV_LOG_INFO("clip_area: x1: %d. y1: %d, x2: %d, y2: %d\n", draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1,
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
     LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", coords->x1, coords->y1, coords->x2, coords->y2);
-    LV_LOG_INFO("width: %d\n", dsc->width);
+	LV_LOG_INFO("color r %x, g %x, b %x, a %d, r %d, width: %d, side %d\n", dsc->color.red, dsc->color.green, dsc->color.blue, dsc->opa, dsc->radius, dsc->width, dsc->side);
+
+	lv_area_t draw_area;
+	if (!_lv_area_intersect(&draw_area, coords, draw_unit->base_unit.clip_area))
+		return; // nothing to draw
 
     int32_t coords_w = lv_area_get_width(coords);
     int32_t coords_h = lv_area_get_height(coords);
+
+    if ((dsc->radius == LV_RADIUS_CIRCLE) && (coords_w == coords_h))
+    {
+        uint32_t color = ((uint8_t)dsc->opa << 24) | (dsc->color.red << 16) | (dsc->color.green << 8) | (dsc->color.blue);
+        int32_t radius = lv_area_get_width(coords) / 2;
+        eve_draw_circle_border(coords->x1 + coords_w / 2, coords->y1 + coords_h / 2, radius, dsc->width, color);
+        return;
+    }
+
+	EVE_CoDl_saveContext(s_pHalContext);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(&draw_area), lv_area_get_height(&draw_area));
+	EVE_CoDl_scissorXY(s_pHalContext, draw_area.x1, draw_area.y1);
+
+    EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
+    EVE_CoDl_colorA(s_pHalContext, dsc->opa);  
+
+    /* Outer radius */
     int32_t rout = dsc->radius;
     int32_t short_side = LV_MIN(coords_w, coords_h);
-    if(rout > short_side >> 1) rout = short_side >> 1;
+    if(rout > (short_side >> 1)) rout = short_side >> 1;
 
-    /*Get the inner area*/
-    lv_area_t area_inner;
-    lv_area_copy(&area_inner, coords);
-    area_inner.x1 += ((dsc->side & LV_BORDER_SIDE_LEFT) ? dsc->width : - (dsc->width ));
-    area_inner.x2 -= ((dsc->side & LV_BORDER_SIDE_RIGHT) ? dsc->width : - (dsc->width ));
-    area_inner.y1 += ((dsc->side & LV_BORDER_SIDE_TOP) ? dsc->width : - (dsc->width ));
-    area_inner.y2 -= ((dsc->side & LV_BORDER_SIDE_BOTTOM) ? dsc->width : - (dsc->width ));
-
+    /* Inner radius */
     int32_t rin = rout - dsc->width;
     if(rin < 0) rin = 0;
 
-    EVE_CoDl_scissorXY(s_pHalContext, coords->x1, coords->y1);
-    EVE_CoDl_scissorSize(s_pHalContext, coords->x2 - coords->x1, coords->y2 - coords->y1);
+    /* Inner area (FIXED LOGIC) */
+    lv_area_t area_inner;
+    lv_area_copy(&area_inner, coords);
+    area_inner.x1 += ((dsc->side & LV_BORDER_SIDE_LEFT) ? dsc->width : - (dsc->width));
+    area_inner.x2 -= ((dsc->side & LV_BORDER_SIDE_RIGHT) ? dsc->width : - (dsc->width));
+    area_inner.y1 += ((dsc->side & LV_BORDER_SIDE_TOP) ? dsc->width : - (dsc->width));
+    area_inner.y2 -= ((dsc->side & LV_BORDER_SIDE_BOTTOM) ? dsc->width : - (dsc->width));
 
-    EVE_CoDl_saveContext(s_pHalContext);
-    EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
-    EVE_CoDl_colorA(s_pHalContext, dsc->opa);  
+    // workaround for top/bottom only case
+    if ((dsc->side == LV_BORDER_SIDE_BOTTOM) || (dsc->side == LV_BORDER_SIDE_TOP))
+    {
+        EVE_CoDl_begin(s_pHalContext, LINES);
+        if (dsc->width > 1)
+            EVE_CoDl_lineWidth(s_pHalContext, dsc->width * 16);
+        EVE_CoDl_vertex2f(s_pHalContext, area_inner.x1, area_inner.y2);
+        EVE_CoDl_vertex2f(s_pHalContext, area_inner.x2, area_inner.y2);
+        EVE_CoDl_end(s_pHalContext);
+        EVE_CoDl_restoreContext(s_pHalContext);
+        return;
+    }
 
     EVE_CoDl_colorMask(s_pHalContext, 0, 0, 0, 1);
     EVE_CoDl_stencilFunc(s_pHalContext, ALWAYS, 0, 1);
@@ -163,7 +185,7 @@ void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc
     EVE_draw_rect_simple(coords->x1, coords->y1, coords->x2, coords->y2, 0);
 
     EVE_CoDl_blendFunc(s_pHalContext, ONE, ZERO);
-    EVE_draw_rect_simple(area_inner.x1 - 2, area_inner.y1 - 1, area_inner.x2 + 1, area_inner.y2 + 2, rin);
+    EVE_draw_rect_simple(area_inner.x1 - 2, area_inner.y1 - 2, area_inner.x2 + 2, area_inner.y2 + 2, rin);
 
     EVE_CoDl_stencilFunc(s_pHalContext, ALWAYS, 1, 1);
     EVE_CoDl_stencilOp(s_pHalContext, REPLACE, REPLACE);
@@ -186,16 +208,13 @@ void lv_draw_eve_border(lv_draw_eve_unit_t * draw_unit, const lv_draw_border_dsc
     EVE_draw_rect_simple(coords->x1, coords->y1, coords->x2, coords->y2, rout);
 
     EVE_CoDl_restoreContext(s_pHalContext);
-#endif
 }
 
 void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_shadow_dsc_t *dsc,
                             const lv_area_t * coords)
 {
-#if 0
-    /*Check whether the shadow is visible*/
-    if(dsc->width == 0) return;
-    if(dsc->opa <= LV_OPA_MIN) return;
+    /* Visibility check */
+    if (dsc->width == 0 || dsc->opa <= LV_OPA_MIN) return;
 
     if(dsc->width == 1 && dsc->spread <= 0 &&
        dsc->ofs_x == 0 && dsc->ofs_y == 0)
@@ -205,27 +224,25 @@ void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_sha
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
     LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", coords->x1, coords->y1, coords->x2, coords->y2);
     LV_LOG_INFO("shadow width %d, spread %d, offset x %d, y %d\n", dsc->width, dsc->spread, dsc->ofs_x, dsc->ofs_y);
-    LV_LOG_INFO("color r %x, g %x, b %x , a %d\n", dsc->color.red, dsc->color.green, dsc->color.blue, dsc->opa);
+	LV_LOG_INFO("color r %x, g %x, b %x , a %d, r %d\n", dsc->color.red, dsc->color.green, dsc->color.blue, dsc->opa, dsc->radius);
 
     /*Calculate the rectangle which is blurred to get the shadow in `shadow_area`*/
-    lv_area_t core_area;
-    core_area.x1 = coords->x1  + dsc->ofs_x - dsc->spread;
-    core_area.x2 = coords->x2  + dsc->ofs_x + dsc->spread;
-    core_area.y1 = coords->y1  + dsc->ofs_y - dsc->spread;
-    core_area.y2 = coords->y2  + dsc->ofs_y + dsc->spread;
+    lv_area_t core_area = {
+        .x1 = coords->x1 + dsc->ofs_x - dsc->spread,
+        .x2 = coords->x2 + dsc->ofs_x + dsc->spread,
+        .y1 = coords->y1 + dsc->ofs_y - dsc->spread,
+        .y2 = coords->y2 + dsc->ofs_y + dsc->spread
+    };
 
     /*Calculate the bounding box of the shadow*/
-    lv_area_t shadow_area;
-    shadow_area.x1 = core_area.x1 - dsc->width / 2 - 1;
-    shadow_area.x2 = core_area.x2 + dsc->width / 2 + 1;
-    shadow_area.y1 = core_area.y1 - dsc->width / 2 - 1;
-    shadow_area.y2 = core_area.y2 + dsc->width / 2 + 1;
+    lv_area_t shadow_area = {
+        .x1 = core_area.x1 - dsc->width,
+        .x2 = core_area.x2 + dsc->width,
+        .y1 = core_area.y1 - dsc->width,
+        .y2 = core_area.y2 + dsc->width
+    };
 
-    lv_opa_t opa = dsc->opa;
-    if(opa > LV_OPA_MAX) opa = LV_OPA_COVER;
-
-    /*Get clipped draw area which is the real draw area.
-     *It is always the same or inside `shadow_area`*/
+    /*Get clipped draw area which is the real draw area */
     lv_area_t draw_area;
     if (!_lv_area_intersect(&draw_area, &shadow_area, draw_unit->base_unit.clip_area))
         return;
@@ -233,47 +250,75 @@ void lv_draw_eve_box_shadow(lv_draw_eve_unit_t *draw_unit, const lv_draw_box_sha
     LV_LOG_INFO("shadow_area: x1: %d. y1: %d, x2: %d, y2: %d\n", shadow_area.x1, shadow_area.y1, shadow_area.x2, shadow_area.y2);
     LV_LOG_INFO("draw_area: x1: %d. y1: %d, x2: %d, y2: %d\n", draw_area.x1, draw_area.y1, draw_area.x2, draw_area.y2);
 
-    /*Consider 1 px smaller bg to be sure the edge will be covered by the shadow*/
-    lv_area_t bg_area;
-    lv_area_copy(&bg_area, coords);
-    lv_area_increase(&bg_area, -1, -1);
-
-    /*Get the clamped radius*/
-    int32_t r_bg = dsc->radius;
-    int32_t short_side = LV_MIN(lv_area_get_width(&bg_area), lv_area_get_height(&bg_area));
-    if(r_bg > short_side >> 1) r_bg = short_side >> 1;
-
-    /*Get the clamped radius*/
-    int32_t r_sh = dsc->radius;
-    short_side = LV_MIN(lv_area_get_width(&core_area), lv_area_get_height(&core_area));
-    if(r_sh > short_side >> 1) r_sh = short_side >> 1;
-
-
-    /*Get how many pixels are affected by the blur on the corners*/
-    int32_t corner_size = dsc->width  + r_sh;
-
+	EVE_CoDl_saveContext(s_pHalContext);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(&draw_area), lv_area_get_height(&draw_area));
+	EVE_CoDl_scissorXY(s_pHalContext, draw_area.x1, draw_area.y1);
     EVE_CoDl_colorRgb(s_pHalContext, dsc->color.red, dsc->color.green, dsc->color.blue);
-    uint32_t opa_steps = 255 / (dsc->width * 2);
 
-    for(int steps = 1; steps <= dsc->width; steps += 3) {
+    /* Clamp opacity */
+    lv_opa_t opa = (dsc->opa > LV_OPA_MAX) ? LV_OPA_COVER : dsc->opa;
+	
+	int32_t short_side;
+	/*Get the clamped radius*/
+	int32_t sh_r = dsc->radius + dsc->width / 2;
+	short_side = LV_MIN(lv_area_get_width(&shadow_area), lv_area_get_height(&shadow_area));
+	if (sh_r > short_side / 2)
+		sh_r = short_side / 2;
+	int32_t w = lv_area_get_width(&draw_area);
+	int32_t h = lv_area_get_height(&draw_area);
 
-        EVE_CoDl_colorA(s_pHalContext, opa_steps);
-        EVE_draw_rect_simple(draw_area.x1 + steps, draw_area.y1 + steps, draw_area.x2 - steps, draw_area.y2 - steps,
-                             r_sh + dsc->width / 2);
-
+    /* draw shadow area */
+    uint32_t shadow_width = abs(core_area.x1 - draw_area.x1); // real shadow width after clip
+    /* Step size (trade-off: quality vs DL size) */
+    uint32_t step = LV_MAX(2, shadow_width / 5);
+    opa = dsc->opa >> (shadow_width / step);
+    if (opa == 0) opa = 1;
+	for (uint32_t i = 0; i < shadow_width; i += step) 
+	{
+		LV_LOG_INFO("opa: %d\n", opa);
+		EVE_CoDl_colorA(s_pHalContext, opa);
+		if (w == h && dsc->radius == LV_RADIUS_CIRCLE)
+		{
+			EVE_draw_circle_simple((core_area.x1 - shadow_width + i) + ((w / 2) - i), (core_area.y1 - shadow_width + i) + ((h / 2) - i), ((w / 2) - i));
+		}
+		else
+		{
+			EVE_draw_rect_simple((core_area.x1 - shadow_width) + i, (core_area.y1 - shadow_width) + i, (core_area.x2 + shadow_width) - i, (core_area.y2 + shadow_width) - i, sh_r);
+		}
+		opa = 2 * opa > 128 ? 128 : 2 * opa;
     }
-#endif
+
+	/*draw spread area*/
+	if (dsc->spread > 0)
+	{
+		EVE_CoDl_colorA(s_pHalContext, opa);
+		w = lv_area_get_width(&core_area);
+		h = lv_area_get_height(&core_area);
+		if (w == h && dsc->radius == LV_RADIUS_CIRCLE)
+		{
+			EVE_draw_circle_simple(core_area.x1 + (w / 2), core_area.y1 + (h / 2), w / 2);
+		}
+		else
+		{
+			/*Get the clamped radius*/
+			int32_t sp_r = dsc->radius + dsc->spread / 2;
+			short_side = LV_MIN(lv_area_get_width(&core_area), lv_area_get_height(&core_area));
+			if (sp_r > short_side / 2)
+				sp_r = short_side / 2;
+			EVE_draw_rect_simple(core_area.x1, core_area.y1, core_area.x2, core_area.y2, sp_r);
+		}
+	}
+
+	EVE_CoDl_restoreContext(s_pHalContext);
 }
 
-static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t radius, int32_t border, uint32_t color,
-                                   uint8_t col_A)
+static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t radius, int32_t border, uint32_t color)
 {
 
     int16_t innerRadius = radius - border;
 
     // Use local rendering context
-    EVE_CoDl_colorRgb_ex(s_pHalContext, color);
-    EVE_CoDl_colorA(s_pHalContext, col_A);
+    EVE_CoDl_colorArgb_ex(s_pHalContext, color);
 
     EVE_CoDl_saveContext(s_pHalContext);
     // Outer reset
@@ -284,7 +329,7 @@ static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t r
 
     // Inner alpha quantity
     EVE_CoDl_blendFunc(s_pHalContext, ONE, ZERO);
-    EVE_draw_circle_simple(coord_x1, coord_y1, innerRadius + 2); //verificar ? 2 pixel
+    EVE_draw_circle_simple(coord_x1, coord_y1, innerRadius + 2);
 
     // Inner alpha edge mask
     EVE_CoDl_stencilFunc(s_pHalContext, ALWAYS, 1, 1);
@@ -293,15 +338,15 @@ static void eve_draw_circle_border(int32_t coord_x1, int32_t coord_y1, int32_t r
     EVE_CoDl_colorA(s_pHalContext, 255);
     EVE_draw_circle_simple(coord_x1, coord_y1, innerRadius);
 
-    // Inner color, outer rect stencil mask
+    // Inner color, outer circle stencil mask
     EVE_CoDl_colorMask(s_pHalContext, 1, 1, 1, 1);
     EVE_CoDl_blendFunc(s_pHalContext, DST_ALPHA, ONE_MINUS_DST_ALPHA);
     EVE_draw_circle_simple(coord_x1, coord_y1, innerRadius);
 
-    // Outer rect
+    // Outer circle
     EVE_CoDl_stencilFunc(s_pHalContext, NOTEQUAL, 1, 255);
     EVE_CoDl_blendFunc(s_pHalContext, SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-    EVE_CoDl_colorA(s_pHalContext, col_A);
+    EVE_CoDl_colorA(s_pHalContext, (color >> 24) & 0xFF);
     EVE_draw_circle_simple(coord_x1, coord_y1, radius);
 
     EVE_CoDl_restoreContext(s_pHalContext);

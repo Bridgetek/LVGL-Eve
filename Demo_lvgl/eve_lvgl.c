@@ -39,11 +39,30 @@ EVE_HalContext* s_pHalContext;
 
 #define HSIZE 800
 
+void eve_recover()
+{
+    uint32_t save_REG_PCLK = EVE_Hal_rd32(s_pHalContext, REG_PCLK);
+
+    /* 3 steps of recovery coprocessor sequence */
+    /* Set REG_CPURESET to 1, to hold the coprocessor in the reset condition */
+    EVE_Hal_wr32(s_pHalContext, REG_CPURESET, 1);
+    /* Set REG_CMD_READ and REG_CMD_WRITE to zero */
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_READ, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_WRITE, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_DL, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_PCLK, save_REG_PCLK); /* coprocessor will set the pclk to 0 for that error case */
+    s_pHalContext->CmdFault = false;
+    /* Set REG_CPURESET to 0, to restart the coprocessor */
+    EVE_Hal_wr32(s_pHalContext, REG_CPURESET, 0);
+    EVE_sleep(100);
+}
 void eve_display_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* color_p)
 {
     EVE_CoCmd_dl(s_pHalContext, DISPLAY());
     EVE_CoCmd_swap(s_pHalContext);
     EVE_Cmd_waitFlush(s_pHalContext);
+    if (s_pHalContext->CmdFault)
+        eve_recover();
 
     // restart a new display list 
     EVE_CoCmd_dlStart(s_pHalContext);
@@ -127,6 +146,7 @@ int main(int argc, char* argv[])
     while (1)
     {
         lv_timer_handler();
+        EVE_sleep(5);
     }
 
     EVE_Util_clearScreen(s_pHalContext);

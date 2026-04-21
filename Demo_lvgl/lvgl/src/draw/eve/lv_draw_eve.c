@@ -27,9 +27,9 @@
  **********************/
 static void eve_execute_drawing(lv_draw_eve_unit_t * u);
 
-static int32_t eve_dispatch(lv_draw_eve_unit_t * draw_unit, lv_layer_t * layer);
+static int32_t eve_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer);
 
-static int32_t eve_evaluate(lv_draw_eve_unit_t * draw_unit, lv_draw_task_t * task);
+static int32_t eve_evaluate(lv_draw_unit_t * draw_unit, lv_draw_task_t * task);
 
 /**********************
  *  GLOBAL PROTOTYPES
@@ -62,7 +62,7 @@ void lv_draw_eve_init(void)
  *   STATIC FUNCTIONS
  **********************/
 
-static int32_t eve_dispatch(lv_draw_eve_unit_t * draw_unit, lv_layer_t * layer)
+static int32_t eve_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
 {
     lv_draw_eve_unit_t * draw_eve_unit = (lv_draw_eve_unit_t *) draw_unit;
 
@@ -90,7 +90,7 @@ static int32_t eve_dispatch(lv_draw_eve_unit_t * draw_unit, lv_layer_t * layer)
     return 1;
 }
 
-static int32_t eve_evaluate(lv_draw_eve_unit_t * draw_unit, lv_draw_task_t * task)
+static int32_t eve_evaluate(lv_draw_unit_t * draw_unit, lv_draw_task_t * task)
 {
     LV_UNUSED(draw_unit);
 
@@ -112,7 +112,7 @@ static void eve_execute_drawing(lv_draw_eve_unit_t * u)
             break;
         case LV_DRAW_TASK_TYPE_BORDER:
             LV_LOG_INFO("LV_DRAW_TASK_TYPE_BORDER\n");
-            lv_draw_eve_border(u, t->draw_dsc, &t->area);
+            //lv_draw_eve_border(u, t->draw_dsc, &t->area);
             break;
         case LV_DRAW_TASK_TYPE_BOX_SHADOW:
             LV_LOG_INFO("LV_DRAW_TASK_TYPE_BOX_SHADOW\n");
@@ -128,7 +128,7 @@ static void eve_execute_drawing(lv_draw_eve_unit_t * u)
             break;
         case LV_DRAW_TASK_TYPE_LAYER:
             LV_LOG_INFO("LV_DRAW_TASK_TYPE_LAYER\n");
-            lv_draw_eve_layer(u, t->draw_dsc, &t->area);
+            //lv_draw_eve_layer(u, t->draw_dsc, &t->area);
             break;
         case LV_DRAW_TASK_TYPE_LINE:
             LV_LOG_INFO("LV_DRAW_TASK_TYPE_LINE\n");
