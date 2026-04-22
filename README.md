@@ -31,9 +31,12 @@ lv_demo_widgets(); //enable the widget demo
 
 Requires the Pico toolchain (https://github.com/raspberrypi/pico-sdk) to be installed.
 
-Pico-SDK version 2.2.0 is required
+Pico-SDK version 2.2.0 is required.
 
-
+If LVGL includes eve_hal headers which need Pico_SDK, please add the following in CMakeLists.txt file.
+```
+  TARGET_LINK_LIBRARIES(folder_name PUBLIC pico_stdlib hardware_spi)
+```
 The following steps will build for Raspberry Pi Pico.
 
  1. Install cmake 3.19.x, python, Visual Studio 2019 community (must select C++), GNU Arm Embedded Toolchain for window.
