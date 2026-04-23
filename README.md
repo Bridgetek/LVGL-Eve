@@ -1,6 +1,7 @@
 
 
-# LVGL-Eve
+# LVGL-EVE
+
 This repository is an extension of EveApps, designed to provide LVGL support for reference purposes.  
 
 For more information about LVGL, visit [LVGL.io](https://lvgl.io/). The original LVGL source code can be downloaded from [GitHub](https://github.com/lvgl/lvgl).   
@@ -11,13 +12,13 @@ This repository has been modified to support EVE chips and has been tested with 
 Users should have prior experience with LVGL.
 
 ## Dependency
-This repository can't work alone, please download EveApps from https://github.com/Bridgetek/EveApps.   
-The folder "common" of EveApps repo is required. 
+
+This repository now includes the required components via a Git submodule linked to the EveApps repository. The common folder from EveApps is therefore already integrated and available. 
 
 ## Build instructions
 
 1. Download EveApps.
-2. Download LVGL-Eve (this repo) and copy the Demo_lvgl folder to EveApps/
+2. Download LVGL-EVE (this repo) and copy the Demo_lvgl folder to EveApps/
 3. Change lvgl configuration in lv_conf depends on your project, such as enable log, enable demos.
 4. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo needs to be enabled in step 3.
 
@@ -30,10 +31,14 @@ lv_demo_widgets(); //enable the widget demo
 
 ### Raspberry Pi Pico
 
-Requires the Pico toolchain https://github.com/ndabas/pico-setup-windows to be installed.
+Requires the Pico toolchain (https://github.com/raspberrypi/pico-sdk) to be installed.
 
-Pico-SDK version 1.5.1 is required
+Pico-SDK version 2.2.0 is required
 
+If LVGL includes eve_hal headers which need Pico_SDK, please add the following in CMakeLists.txt file.
+```
+  TARGET_LINK_LIBRARIES(folder_name PUBLIC pico_stdlib hardware_spi)
+```
 
 The following steps will build for Raspberry Pi Pico.
 
@@ -42,10 +47,10 @@ The following steps will build for Raspberry Pi Pico.
 ```sh
 set PICO_SDK_PATH=[path to pico-sdk]
 set PICO_TOOLCHAIN_PATH=[path to GNU Arm Embedded Toolchain\\10 2020-q4-major\\bin]
-cd EveApps
+cd Eve_Apps
 mkdir build
 cd build
-cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=MM2040EV -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA  -DCMAKE_BUILD_TYPE=Debug ..
+cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug ..
 nmake Demo_lvgl
 ```
 ## Demo reference

@@ -357,21 +357,11 @@ IF(WIN32 AND ((EVE_APPS_PLATFORM STREQUAL "MULTI") OR (EVE_APPS_GRAPHICS STREQUA
 ENDIF()
 
 # Common setup #################################################################
-ADD_SUBDIRECTORY(dependencies)
 ADD_SUBDIRECTORY(EveApps/common)
 INCLUDE_DIRECTORIES("EveApps/common/eve_hal")
 INCLUDE_DIRECTORIES("EveApps/common/eve_hal/Hdr")
 
 # Project setup ################################################################
-IF(NOT EVE_APPS_GRAPHICS STREQUAL "MULTI")
-  ADD_SUBDIRECTORY(DemoApps)
-  ADD_SUBDIRECTORY(SampleApp)
-ENDIF()
-
 ADD_SUBDIRECTORY(Demo_lvgl)
-
-IF (WITH_EVE_TESTS)
-  ADD_SUBDIRECTORY(tests)
-ENDIF()
 
 ################################################################################
