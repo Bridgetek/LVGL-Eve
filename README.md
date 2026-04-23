@@ -32,7 +32,7 @@ lv_demo_widgets(); //enable the widget demo
 
 Requires the Pico toolchain https://github.com/ndabas/pico-setup-windows to be installed.
 
-Pico-SDK version 1.3.0 is required
+Pico-SDK version 1.5.1 is required
 
 
 The following steps will build for Raspberry Pi Pico.
