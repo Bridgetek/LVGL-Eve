@@ -249,7 +249,7 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMAGE_IMG_CLO
 const lv_image_dsc_t img_clothes = {
     .header.w = 56,
     .header.h = 56,
-    .header.cf = LV_COLOR_DEPTH == 16 ? LV_COLOR_FORMAT_RGB565A8 : LV_COLOR_FORMAT_ARGB8888,
+    .header.cf = LV_COLOR_FORMAT_NATIVE_WITH_ALPHA,
     .data = img_clothes_map,
     .data_size = sizeof(img_clothes_map),
 };

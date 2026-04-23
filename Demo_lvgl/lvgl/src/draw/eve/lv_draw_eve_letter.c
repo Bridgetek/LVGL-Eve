@@ -11,8 +11,8 @@
 #if LV_USE_DRAW_EVE
 #include "lv_draw_eve.h"
 #include "eve_ram_g.h"
-#include "src/font/lv_font_fmt_txt.h"
-#include "src/misc/lv_utils.h"
+#include "../../font/lv_font_fmt_txt.h"
+#include "../../misc/lv_utils.h"
 #include "stdlib.h"
 
 /*********************
@@ -52,7 +52,6 @@ static uint32_t eve_lv_font_to_ramg(const lv_font_t * font_p, uint8_t font_eveId
  **********************/
 
 static uint32_t addr_font[_MAX_FONT][MAX_GLYPH_DSC]; /* Save the current RAM_G font address */
-static const lv_font_t * font_static;
 
 static lv_draw_eve_unit_t * unit = NULL;
 
@@ -82,13 +81,11 @@ void lv_draw_eve_label(lv_draw_eve_unit_t * draw_unit, const lv_draw_label_dsc_t
         draw_unit->base_unit.clip_area->x2, draw_unit->base_unit.clip_area->y2);
     LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", coords->x1, coords->y1, coords->x2, coords->y2);
 
-    EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
-    EVE_CoDl_scissorSize(s_pHalContext, draw_unit->base_unit.clip_area->x2 - draw_unit->base_unit.clip_area->x1,
-        draw_unit->base_unit.clip_area->y2 - draw_unit->base_unit.clip_area->y1);
     EVE_CoDl_saveContext(s_pHalContext);
+    EVE_CoDl_scissorXY(s_pHalContext, draw_unit->base_unit.clip_area->x1, draw_unit->base_unit.clip_area->y1);
+    EVE_CoDl_scissorSize(s_pHalContext, lv_area_get_width(draw_unit->base_unit.clip_area), lv_area_get_height(draw_unit->base_unit.clip_area));
     EVE_CoDl_begin(s_pHalContext, BITMAPS);
     //LV_LOG_INFO("%s, r %d, g %d, b %d, font %d\r\n ", dsc->text, dsc->color.red, dsc->color.green, dsc->color.blue, dsc->font);
-    font_static = dsc->font;
     lv_draw_label_iterate_characters(&draw_unit->base_unit, dsc, coords, lv_draw_eve_letter_cb);
     EVE_CoDl_end(s_pHalContext);
     EVE_CoDl_restoreContext(s_pHalContext);
@@ -162,15 +159,17 @@ static void lv_draw_eve_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_
                                   lv_draw_fill_dsc_t * fill_draw_dsc, const lv_area_t * fill_area)
 {
     if(fill_draw_dsc && fill_area) {
+        EVE_CoDl_end(s_pHalContext);
         /* draw UNDERLINE and STRIKETHROUGH */
         EVE_draw_rect_simple(fill_area->x1, fill_area->y1, fill_area->x2, fill_area->y2, 0);
+        EVE_CoDl_begin(s_pHalContext, BITMAPS);
     }
 
     if(glyph_draw_dsc == NULL)
         return;  //Important
 
     //load font bitmap to RAM_G
-    const lv_font_t *font_in_use = font_static;
+    const lv_font_t *font_in_use = glyph_draw_dsc->g->resolved_font;
     lv_font_fmt_txt_dsc_t *font_dsc = (lv_font_fmt_txt_dsc_t *)font_in_use->dsc;
     uint32_t gid = _get_glyph_dsc_id(font_in_use, (int32_t)draw_unit->target_layer->user_data);
     if (!gid)
@@ -190,16 +189,20 @@ static void lv_draw_eve_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_
     }
 
     uint8_t bpp = 0;
+    uint16_t linestride = 0;
     switch (glyph_draw_dsc->format)
     {
         case 1 :
             bpp = L1;
+            linestride = (glyph_draw_dsc->g->box_w % 8 == 0) ? glyph_draw_dsc->g->box_w / 8 : (glyph_draw_dsc->g->box_w + 7) / 8;
             break;
         case 4 :
             bpp = L4;
+            linestride = (glyph_draw_dsc->g->box_w % 2 == 0) ? glyph_draw_dsc->g->box_w / 2 : (glyph_draw_dsc->g->box_w + 1) / 2;
             break;
         case 8 :
             bpp = L8;
+            linestride = glyph_draw_dsc->g->box_w;
             break;
         default :
             break;
@@ -207,13 +210,13 @@ static void lv_draw_eve_letter_cb(lv_draw_unit_t * draw_unit, lv_draw_glyph_dsc_
 
     EVE_CoDl_colorA(s_pHalContext, glyph_draw_dsc->opa);
     EVE_CoDl_colorRgb(s_pHalContext, glyph_draw_dsc->color.red, glyph_draw_dsc->color.green, glyph_draw_dsc->color.blue);
-    //LV_LOG_INFO("bpp %d, box_w %d, box_h %d, color r %d, g %d, b %d\n", bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h, glyph_draw_dsc->color.red, glyph_draw_dsc->color.green, glyph_draw_dsc->color.blue);
+    //LV_LOG_INFO("addr_font %d, bpp %d, box_w %d, box_h %d, color r %d, g %d, b %d, a %d\n", addr_font[font_eveId][gid], bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h, glyph_draw_dsc->color.red, glyph_draw_dsc->color.green, glyph_draw_dsc->color.blue, glyph_draw_dsc->opa);
     //LV_LOG_INFO("coords: cx1: %d, cy1: %d, cx2: %d, cy2: %d\n", glyph_draw_dsc->letter_coords->x1, glyph_draw_dsc->letter_coords->y1, glyph_draw_dsc->letter_coords->x2, glyph_draw_dsc->letter_coords->y2);
 #if defined(FT81X_ENABLE) || defined(BT88X_ENABLE)
     EVE_CoCmd_setBitmap(s_pHalContext, addr_font[font_eveId][gid], bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h);
 #else
     EVE_CoDl_bitmapSource(s_pHalContext, addr_font[font_eveId][gid]);
-    EVE_CoDl_bitmapLayout(s_pHalContext, bpp, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h);
+    EVE_CoDl_bitmapLayout(s_pHalContext, bpp, linestride, glyph_draw_dsc->g->box_h);
     EVE_CoDl_bitmapSize(s_pHalContext, NEAREST, BORDER, BORDER, glyph_draw_dsc->g->box_w, glyph_draw_dsc->g->box_h);
 #endif
 

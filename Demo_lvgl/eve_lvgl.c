@@ -37,22 +37,37 @@
 static EVE_HalContext s_halContext;
 EVE_HalContext* s_pHalContext;
 
-#define HSIZE 480
-#define VSIZE 272
+#define HSIZE 800
+
+void eve_recover()
+{
+    uint32_t save_REG_PCLK = EVE_Hal_rd32(s_pHalContext, REG_PCLK);
+
+    /* 3 steps of recovery coprocessor sequence */
+    /* Set REG_CPURESET to 1, to hold the coprocessor in the reset condition */
+    EVE_Hal_wr32(s_pHalContext, REG_CPURESET, 1);
+    /* Set REG_CMD_READ and REG_CMD_WRITE to zero */
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_READ, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_WRITE, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_CMD_DL, 0);
+    EVE_Hal_wr32(s_pHalContext, REG_PCLK, save_REG_PCLK); /* coprocessor will set the pclk to 0 for that error case */
+    s_pHalContext->CmdFault = false;
+    /* Set REG_CPURESET to 0, to restart the coprocessor */
+    EVE_Hal_wr32(s_pHalContext, REG_CPURESET, 0);
+    EVE_sleep(100);
+}
 void eve_display_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* color_p)
 {
-	if (lv_display_flush_is_last(disp))
-	{
-		EVE_CoCmd_dl(s_pHalContext, DISPLAY());
-		EVE_CoCmd_swap(s_pHalContext);
-		EVE_Cmd_waitFlush(s_pHalContext);
-		uint32_t dl_buff = EVE_Hal_rd32(s_pHalContext, REG_CMD_DL);
-		printf("display list %d \n", dl_buff);
+    EVE_CoCmd_dl(s_pHalContext, DISPLAY());
+    EVE_CoCmd_swap(s_pHalContext);
+    EVE_Cmd_waitFlush(s_pHalContext);
+    if (s_pHalContext->CmdFault)
+        eve_recover();
 
-		// restart a new display list
-		EVE_CoCmd_dlStart(s_pHalContext);
-		EVE_CoDl_vertexFormat(s_pHalContext, 0);
-	}
+    // restart a new display list 
+    EVE_CoCmd_dlStart(s_pHalContext);
+    EVE_CoDl_vertexFormat(s_pHalContext, 0);
+
     lv_display_flush_ready(disp);
 }
 
@@ -82,13 +97,13 @@ static void eve_touch_read(lv_indev_t* drv, lv_indev_data_t* data)
 void lv_setup(void)
 {
     lv_display_t *display;
-	lv_color16_t buf1;
-#define DRAW_BUFFER_SIZE (HSIZE * VSIZE * LV_COLOR_DEPTH / 8)
+    static uint8_t buf1[HSIZE * 160]; // TODO: change with LCD size, Declare a buffer for 1/10 screen size?
 
     printf("height %d, width %d\n", s_pHalContext->Height, s_pHalContext->Width);
     display = lv_display_create(s_pHalContext->Width, s_pHalContext->Height);
     lv_display_set_flush_cb(display, eve_display_flush);
-	lv_display_set_buffers(display, &buf1, NULL, DRAW_BUFFER_SIZE, LV_DISPLAY_RENDER_MODE_FULL);
+    lv_display_set_buffers(display, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_render_mode(display, LV_DISPLAY_RENDER_MODE_FULL); /*Force to use LV_DISPLAY_RENDER_MODE_FULL*/
 
     /*Register a touchpad input device*/
     lv_indev_t *indev_touchpad;
@@ -131,6 +146,7 @@ int main(int argc, char* argv[])
     while (1)
     {
         lv_timer_handler();
+        EVE_sleep(5);
     }
 
     EVE_Util_clearScreen(s_pHalContext);
