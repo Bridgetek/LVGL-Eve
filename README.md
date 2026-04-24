@@ -17,17 +17,11 @@ This repository now includes the required components via a Git submodule linked 
 
 ## Build instructions
 
-1. Download EveApps.
-2. Download LVGL-EVE (this repo) and copy the Demo_lvgl folder to EveApps/
-3. Change lvgl configuration in lv_conf depends on your project, such as enable log, enable demos.
-4. Add the example or demo which needed to run in Demo_lvgl/eve_lvgl. Demo needs to be enabled in step 3.
-
-```c
-EVE_CoCmd_dlStart(s_pHalContext);
-//lv_example_get_started_1();
-lv_demo_widgets(); //enable the widget demo
-//lv_demo_benchmark();
-```
+1. Download LVGL-EVE (this repo) using git. `git clone https://github.com/Bridgetek/LVGL-Eve.git`
+2. Change into the LVGL-EVE directory. `cd LVGL-Eve`
+3. Pull the code from git. `git pull origin`
+4. Get the submodules. `git submodule update --init --recursive`
+5. Update the submodules. `git submodule update --remote --merge`
 
 ### Raspberry Pi Pico
 
@@ -47,7 +41,7 @@ The following steps will build for Raspberry Pi Pico.
 ```sh
 set PICO_SDK_PATH=[path to pico-sdk]
 set PICO_TOOLCHAIN_PATH=[path to GNU Arm Embedded Toolchain\\10 2020-q4-major\\bin]
-cd Eve_Apps
+cd LVGL-Eve
 mkdir build
 cd build
 cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug ..
