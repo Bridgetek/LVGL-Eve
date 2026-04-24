@@ -41,7 +41,7 @@ The following steps will build for Raspberry Pi Pico.
 ```sh
 set PICO_SDK_PATH=[path to pico-sdk]
 set PICO_TOOLCHAIN_PATH=[path to GNU Arm Embedded Toolchain\\10 2020-q4-major\\bin]
-cd Eve_Apps
+cd LVGL-Eve
 mkdir build
 cd build
 cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug ..
