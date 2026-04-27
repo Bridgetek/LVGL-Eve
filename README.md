@@ -50,7 +50,7 @@ lv_demo_widgets(); //enable the widget demo
 
 ### Raspberry Pi Pico
 
-Requires the Pico toolchain https://github.com/ndabas/pico-setup-windows to be installed.
+Install the Pico toolchain and SDK (https://github.com/raspberrypi/pico-sdk). This can be done using the pico Visual Studio Code Extension. 
 
 Pico-SDK version 2.2.0 is required.
 
