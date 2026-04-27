@@ -11,23 +11,16 @@ This repository has been modified to support EVE chips and has been tested with 
 Users should have prior experience with LVGL.
   
 ## Dependency
-This repository cannot function independently; Bridgetek’s [EveApps](https://github.com/Bridgetek/EveApps) is included as a submodule.
+This repository now includes the required components via a Git submodule linked to the EveApps repository. The common folder from EveApps is therefore already integrated and available. 
 
 ## Build instructions
 
-1. Download LVGL-Eve (this repo) 
-2. Download and update submodule
-
-```sh
-git submodule update --init --recursive
-git submodule update --remote --merge
-```
-
-3. add Demo_lvgl folder to External's top level CMakeLists.txt
-
-<img width="343" height="143" alt="image" src="https://github.com/user-attachments/assets/d8cc6d97-fd1e-4a86-8528-155080bc86dd" />
-
-4. Modify the lvgl configuration in Demo_lvgl/lv_conf.h according to your project's requirements, such as enabling logs, demos, etc.
+1. Download LVGL-EVE (this repo) using git. `git clone https://github.com/Bridgetek/LVGL-Eve.git`
+2. Change into the LVGL-EVE directory. `cd LVGL-Eve`
+3. Pull the code from git. `git pull origin`
+4. Get the submodules. `git submodule update --init --recursive`
+5. Update the submodules. `git submodule update --remote --merge`
+6. Modify the lvgl configuration in Demo_lvgl/lv_conf.h according to your project's requirements, such as enabling logs, demos, etc.
 
 ```c
 /*Enable the log module*/
@@ -37,7 +30,7 @@ git submodule update --remote --merge
 #define LV_USE_DEMO_WIDGETS 1
 ```
 
-5. (Optional) Adjust the display buffer in Demo_lvgl/eve_lvgl.c to match your project. It's recommended to use a screen-sized buffer if there is sufficient RAM available.
+7. (Optional) Adjust the display buffer in Demo_lvgl/eve_lvgl.c to match your project. It's recommended to use a screen-sized buffer if there is sufficient RAM available.
 
 ```c
 void lv_setup(void)
@@ -46,7 +39,7 @@ void lv_setup(void)
     static uint8_t buf1[HSIZE * 160];
 ```
 
-6. Include the necessary example or demo that needs to run in Demo_lvgl/eve_lvgl.c. Ensure that the demo is enabled in step 4.
+8. Include the necessary example or demo that needs to run in Demo_lvgl/eve_lvgl.c. Ensure that the demo is enabled in step 6.
 
 ```c
 EVE_CoCmd_dlStart(s_pHalContext);
@@ -91,7 +84,7 @@ $ nmake Demo_lvgl
 >
 >[EVE display] EVE_DISPLAY_WVGA for IDM2040-7A, EVE_DISPLAY_WQVGA for IDM2040-43A...
 
-The uf2 file can be found in 'LVGL-Eve\external\build\Demo_lvgl_build\'
+The uf2 file can be found in 'LVGL-Eve\build\Demo_lvgl\'
 
 <details>
 <summary>Connections reference</summary>
