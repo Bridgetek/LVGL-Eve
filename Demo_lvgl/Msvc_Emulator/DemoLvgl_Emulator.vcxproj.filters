@@ -1112,130 +1112,130 @@
     <ClInclude Include="..\lvgl\demos\transform\lv_demo_transform.h">
       <Filter>lvgl\demos\transform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\Common.h">
+    <ClInclude Include="..\..\EveApps\common\application\Common.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\FileIo.h">
+    <ClInclude Include="..\..\EveApps\common\application\FileIo.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\FileTransfer.h">
+    <ClInclude Include="..\..\EveApps\common\application\FileTransfer.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\FlashHelper.h">
+    <ClInclude Include="..\..\EveApps\common\application\FlashHelper.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\Gesture.h">
+    <ClInclude Include="..\..\EveApps\common\application\Gesture.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\Image.h">
+    <ClInclude Include="..\..\EveApps\common\application\Image.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\Logo.h">
+    <ClInclude Include="..\..\EveApps\common\application\Logo.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\application\Maths.h">
+    <ClInclude Include="..\..\EveApps\common\application\Maths.h">
       <Filter>common\application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\bt8xxemu.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\bt8xxemu.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\bt8xxemu_inttypes.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\bt8xxemu_inttypes.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\FT_DataTypes.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\FT_DataTypes.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\FT_Gpu.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\FT_Gpu.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\FT_Gpu_Hal.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\FT_Gpu_Hal.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\FT_LoadFile.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\FT_LoadFile.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\FT_Platform.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\FT_Platform.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\ftd2xx.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\ftd2xx.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\Gpu.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\Gpu.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\Gpu_CoCmd.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\Gpu_CoCmd.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\Gpu_Hal.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\Gpu_Hal.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\Hal_Config.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\Hal_Config.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\LibFT4222.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\LibFT4222.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\libMPSSE_spi.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\libMPSSE_spi.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\Platform.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\Platform.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\Hdr\WinTypes.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\Hdr\WinTypes.h">
       <Filter>common\eve_hal\Hdr</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Cmd.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Cmd.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_CoCmd.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_CoCmd.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_CoDl.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_CoDl.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Config.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Config.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_GpuDefs.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_GpuDefs.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_GpuTypes.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_GpuTypes.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Hal.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Hal.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_HalDefs.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_HalDefs.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_HalImpl.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_HalImpl.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_ILI9488.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_ILI9488.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_IntTypes.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_IntTypes.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_IntTypes_MSVC12.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_IntTypes_MSVC12.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_LoadFile.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_LoadFile.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_MediaFifo.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_MediaFifo.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Platform.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Platform.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Platform_BT8XXEMU.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Platform_BT8XXEMU.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Platform_WIN32.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Platform_WIN32.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\common\eve_hal\EVE_Util.h">
+    <ClInclude Include="..\..\EveApps\common\eve_hal\EVE_Util.h">
       <Filter>common\eve_hal</Filter>
     </ClInclude>
   </ItemGroup>
@@ -2542,88 +2542,88 @@
     <ClCompile Include="..\lvgl\demos\transform\assets\img_transform_avatar_15.c">
       <Filter>lvgl\demos\transform\assets</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\Common.c">
+    <ClCompile Include="..\..\EveApps\common\application\Common.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\FileIo.c">
+    <ClCompile Include="..\..\EveApps\common\application\FileIo.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\FileTransfer.c">
+    <ClCompile Include="..\..\EveApps\common\application\FileTransfer.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\FlashHelper.c">
+    <ClCompile Include="..\..\EveApps\common\application\FlashHelper.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\Gesture.c">
+    <ClCompile Include="..\..\EveApps\common\application\Gesture.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\Image.c">
+    <ClCompile Include="..\..\EveApps\common\application\Image.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\Logo.c">
+    <ClCompile Include="..\..\EveApps\common\application\Logo.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\application\Maths.c">
+    <ClCompile Include="..\..\EveApps\common\application\Maths.c">
       <Filter>common\application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_Cmd.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_Cmd.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_CoCmd.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_CoCmd.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_CoCmd_IO.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_CoCmd_IO.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_CoCmd_State.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_CoCmd_State.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_CoCmd_Widgets.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_CoCmd_Widgets.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_CoDl.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_CoDl.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_GpuDefs_BT81X.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_GpuDefs_BT81X.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_GpuDefs_BT88X.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_GpuDefs_BT88X.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_GpuDefs_FT80X.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_GpuDefs_FT80X.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_GpuDefs_FT81X.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_GpuDefs_FT81X.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_Hal.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_Hal.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_HalImpl_BT8XXEMU.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_HalImpl_BT8XXEMU.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_HalImpl_BT8XXEMUC.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_HalImpl_BT8XXEMUC.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_HalImpl_WIN32.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_HalImpl_WIN32.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_ILI9488_FT9XX.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_ILI9488_FT9XX.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_ILI9488_RP2040.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_ILI9488_RP2040.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_LoadFile_FATFS.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_LoadFile_FATFS.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_LoadFile_STDIO.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_LoadFile_STDIO.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_MediaFifo.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_MediaFifo.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\external\common\eve_hal\EVE_Util.c">
+    <ClCompile Include="..\..\EveApps\common\eve_hal\EVE_Util.c">
       <Filter>common\eve_hal</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2811,31 +2811,31 @@
     <None Include="..\lvgl\demos\transform\README.md">
       <Filter>lvgl\demos\transform</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x86\bt8xxemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\bt8xxemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x86\bt8xxemus.exe">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\bt8xxemus.exe">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x86\ft8xxemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\ft8xxemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x86\mx25lemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\mx25lemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x64\bt8xxemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\bt8xxemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x64\bt8xxemus.exe">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\bt8xxemus.exe">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x64\ft8xxemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\ft8xxemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\Bin\Simulation\x64\mx25lemu.dll">
+    <None Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\mx25lemu.dll">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </None>
-    <None Include="..\..\external\common\eve_hal\EVE_Hal.md">
+    <None Include="..\..\EveApps\common\eve_hal\EVE_Hal.md">
       <Filter>common\eve_hal</Filter>
     </None>
   </ItemGroup>
@@ -3075,26 +3075,26 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\external\common\CMakeLists.txt" />
-    <Text Include="..\..\external\common\Readme.txt" />
+    <Text Include="..\..\EveApps\common\CMakeLists.txt" />
+    <Text Include="..\..\EveApps\common\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x86\bt8xxemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\bt8xxemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </Library>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x86\ft8xxemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\ft8xxemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </Library>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x86\mx25lemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x86\mx25lemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x86</Filter>
     </Library>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x64\bt8xxemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\bt8xxemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </Library>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x64\ft8xxemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\ft8xxemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </Library>
-    <Library Include="..\..\external\common\eve_hal\Bin\Simulation\x64\mx25lemu.lib">
+    <Library Include="..\..\EveApps\common\eve_hal\Bin\Simulation\x64\mx25lemu.lib">
       <Filter>common\eve_hal\Bin\Simulation\x64</Filter>
     </Library>
   </ItemGroup>
