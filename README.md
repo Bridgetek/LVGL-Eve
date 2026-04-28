@@ -17,36 +17,96 @@ This repository now includes the required components via a Git submodule linked 
 
 ## Build instructions
 
+Firstly download the source code for LVGL-Eve and EveApps from GitHub.
+
 1. Download LVGL-EVE (this repo) using git. `git clone https://github.com/Bridgetek/LVGL-Eve.git`
 2. Change into the LVGL-EVE directory. `cd LVGL-Eve`
 3. Pull the code from git. `git pull origin`
 4. Get the submodules. `git submodule update --init --recursive`
 5. Update the submodules. `git submodule update --remote --merge`
 
-### Raspberry Pi Pico
+The [LVGL-Eve](https://github.com/Bridgetek/LVGL-Eve) code can be downloaded as a zip file from GitHub and expanded into the directories if needed. 
+If this is done then the [EveApps](https://github.com/Bridgetek/EveApps) code also needs to be downloaded and extracted into the `EveApps` subdirectory in the `LVGL-Eve` directory.
 
-Requires the Pico toolchain (https://github.com/raspberrypi/pico-sdk) to be installed.
+An installation of CMake (minimum 3.19.x) is needed and python (minimum 3.10) is used in LVGL.
 
-Pico-SDK version 2.2.0 is required
+### Raspberry Pi Pico (Windows)
 
-If LVGL includes eve_hal headers which need Pico_SDK, please add the following in CMakeLists.txt file.
-```
-  TARGET_LINK_LIBRARIES(folder_name PUBLIC pico_stdlib hardware_spi)
-```
+Install the pico toolchain and SDK (https://github.com/raspberrypi/pico-sdk). 
+This can be done by installing the pico Visual Studio Code Extension. 
+Pico SDK Version 2.2.0 is required and the file system paths for v2.2.0 are used below. 
 
-The following steps will build for Raspberry Pi Pico.
+The pico SDK is normally installed in the `.pico-sdk` folder in the user's profile directory, 
+i.e. `%USERPROFILE%\.pico-sdk`.
 
- 1. Install cmake 3.19.x, python, Visual Studio 2019 community (must select C++), GNU Arm Embedded Toolchain for window.
- 2. Launch the *Developer Command Prompt for VS*
+The pico toolchain is installed in `toolchain` directory in the pico SDK directory. 
+Multiple concurrent versions can be installed so there is versioned directory containing the toolchain structure below. 
+The toolchain executables needed are in the `bin` directory of the toolchain structure. 
+
+The path for the toolchain in SDK Version 2.2.0 is `%USERPROFILE%\.pico-sdk\toolchain\14_2_Rel1\bin`.
+
+The pico SDK also installs a program called picotool in the `picotool` directory within the pico SDK and can be added to the user or system `PATH` environment variable. 
+If the build process does not find a version of picotool on the `PATH` then it will use a native compiler to build a unique version of the tool for the build. 
+This means that a native C and C++ compiler needs to be available on the command prompt that is building the pico code. 
+The version of picotool in the SDK Version 2.2.0 is version 2.2.0.
+
+To configure the environment variable for the build:
+
 ```sh
-set PICO_SDK_PATH=[path to pico-sdk]
-set PICO_TOOLCHAIN_PATH=[path to GNU Arm Embedded Toolchain\\10 2020-q4-major\\bin]
-cd LVGL-Eve
-mkdir build
-cd build
-cmake.exe -G "NMake Makefiles"  -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug ..
-nmake Demo_lvgl
+set PICO_SDK_PATH=%USERPROFILE%\.pico-sdk
+set PICO_TOOLCHAIN_PATH=%USERPROFILE%\.pico-sdk\toolchain\14_2_Rel1\bin
+set PATH=%PATH%;%USERPROFILE%\.pico-sdk\picotool\2.2.0\picotool
 ```
+
+The CMake generator selected can be `"Unix Makefiles"` or any other generator that will use the pico toolchain compilers. If the picotool is being compiled then a generator that can use a native compiler is required. `"Unix Makefiles"` to use a GCC style compiler or `"NMake Makefiles"` to use a Microsoft Visual Studio compiler.
+
+The following steps will build for Raspberry Pi Pico with the EVE device set to the BT883 and a WQVGA display panel:
+
+```
+cmake -G "Unix Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug -B build -S .
+cmake --build build --target Demo_lvgl
+```
+Note: `"Ninja"` may be used instead of `"Unix Makefiles"` for a faster build.
+
+The following step will build the picotool executable using a Microsoft compiler and the Raspberry Pi Pico code with the EVE device set to the BT816 and a WVGA display panel:
+
+```
+cmake -G "NMake Makefiles" -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT816 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WVGA -DCMAKE_BUILD_TYPE=Debug -B build -S .
+cmake --build build
+```
+
+Intermediate and build output files are placed in the `build` directory in both examples above.
+
+### Raspberry Pi Pico (Linux)
+
+Install the pico toolchain and SDK (https://github.com/raspberrypi/pico-sdk). 
+This can be done by installing the pico Visual Studio Code Extension or following the instructions to install the pico manually detailed in the "Raspberry Pi Pico-series C/C++ SDK" document referenced in that repository.
+Pico SDK Version 2.2.0 is required and the file system paths for v2.2.0 are used below. 
+
+The pico SDK also uses a program called picotool. This can be build as per the instructions in the "Raspberry Pi Pico-series C/C++ SDK" and the executable added to the `/usr/local/bin`.
+If the build process does not find a version of picotool on the `PATH` then it will use a native compiler to build a unique version of the tool for the build. 
+This means that a native C and C++ compiler needs to be available on the command prompt that is building the pico code. 
+The version of picotool should match the version of the pico SDK.
+
+To configure the environment variable for the build:
+
+```sh
+set PICO_SDK_PATH=~/.pico-sdk/sdk/2.2.0
+set PICO_TOOLCHAIN_PATH=~/.pico-sdk/toolchain/14_2_Rel1/bin
+```
+
+The CMake generator selected can be `"Unix Makefiles"` or any other generator that will use the pico toolchain compilers. If the picotool is being compiled then a generator that can use a native compiler is required.
+
+The following steps will build for Raspberry Pi Pico with the EVE device set to the BT883 and a WQVGA display panel:
+
+```
+cmake -DEVE_APPS_PLATFORM=EVE_PLATFORM_RP2040 -DEVE_APPS_GRAPHICS=EVE_GRAPHICS_BT883 -DEVE_APPS_DISPLAY=EVE_DISPLAY_WQVGA -DCMAKE_BUILD_TYPE=Debug -B build -S .
+cmake --build build --target Demo_lvgl
+```
+Note: The generator `"Ninja"` may be used for a faster build.
+
+Intermediate and build output files are placed in the `build` directory in both examples above.
+
 ## Demo reference
 ### Widgets
 <img width="3729" height="2246" alt="image" src="https://github.com/user-attachments/assets/302cbfce-4745-4962-84ad-a5d9e5d85684" />

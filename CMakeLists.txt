@@ -1,3 +1,19 @@
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.2.0)
+set(toolchainVersion 14_2_Rel1)
+set(picotoolVersion 2.2.0-a4)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+set(PICO_BOARD pico CACHE STRING "Board type")
+
 # CMake project ################################################################
 #
 # 1. Build for FT9XX example: Edit the FT9XX_TOOLCHAIN location path at first
@@ -41,21 +57,6 @@ define_property(
   BRIEF_DOCS "Set the folder name."
   FULL_DOCS  "Use to organize targets in an IDE."
 )
-
-# Ensure that we are not building in our source directories. ###################
-SET(Build_Dir_OK "TRUE")
-STRING(REGEX MATCH "^${CMAKE_SOURCE_DIR}" In_Sub_Dir ${CMAKE_BINARY_DIR})
-IF (In_Sub_Dir)
-  STRING(REGEX MATCH "^${CMAKE_SOURCE_DIR}/[Bb]uild" In_Build_Dir ${CMAKE_BINARY_DIR})
-  IF (NOT In_Build_Dir)
-    SET(Build_Dir_OK "FALSE")
-  ENDIF ()
-ENDIF ()
-
-IF (NOT Build_Dir_OK)
-  MESSAGE(FATAL_ERROR "You must run cmake from a directory that is not in your source tree, or that is in a special subdirectory of the tree whose name begins with 'build'.")
-ENDIF ()
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/") 
 
 # Options ######################################################################
 SET(WITH_EVE_TESTS OFF CACHE BOOL "Build EVE test projects")
@@ -237,6 +238,7 @@ ENDIF ()
 IF(IS_PLATFORM_RP2040)
   validate_env_rp2040("$ENV{PICO_SDK_PATH}" "PICO_SDK_PATH")
   validate_env_rp2040("$ENV{PICO_TOOLCHAIN_PATH}" "PICO_TOOLCHAIN_PATH")
+  SET(picotool_VERSION_REQUIRED "${sdkVersion}")
 
   # Pull in Pico SDK (must be before project)
   INCLUDE(pico_sdk_import.cmake)
